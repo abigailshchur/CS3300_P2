@@ -45,6 +45,10 @@ input[type=button], input[type=submit], input[type=reset] {
     cursor: pointer;
 }
 
+.team_stat:hover{
+    opacity: 0.75;
+}
+
 svg { 
     border: solid #ccc 1px;
 }
@@ -328,10 +332,14 @@ d3.queue()
 });
 
 
+/*
+ * Function is called right after data loads or whenever form is submitted.
+ * Deals with getting 6 team members and ranked list of alternate team members. 
+ */
 function displayPokemon(){
     var svg = d3.select("#pokemon_images").selectAll("svg");
-    svg.selectAll("*").remove();
-    teamData = makeTeam();
+    svg.selectAll("*").remove(); // removes images from before
+    teamData = makeTeam(); // re-makes the team
     if (teamType == "total"){
         team = teamData.total;
         nextTeam = teamData.totalNext;
@@ -357,8 +365,10 @@ function displayPokemon(){
         var nextTeam = fullTeam.splice(6,fullTeam.length);
         var team = fullTeam;
     }
+    // appending images to svg
     for (i = 0; i < 6; i++){
         svg.append("image")
+            .attr("id","team_pic_"+i)
             .attr("x", 25+i*220)
             .attr("y", 50)
             .attr("height", 200)
@@ -366,6 +376,36 @@ function displayPokemon(){
             .attr("href", "pokemon_pics/" + team[i].idStr + ".png")
             .attr("xlink:href", "pokemon_pics/" + team[i].idStr + ".png");
     }
+
+    // appending stat images
+    for (i = 0; i < 6; i++){
+        svg.append("rect")
+            .attr("id","team_stat_"+i)
+            .attr("class", "team_stat")
+            .attr("x", 25+i*220)
+            .attr("y", 50)
+            .attr("height", 200)
+            .attr("width", 200)
+            .attr("fill", "white")
+            .attr("opacity", 0);
+    }
+
+    // appending button to switch pokemon
+    for (i = 0; i < 6; i++){
+        console.log("lets make this a button");
+    }
+}
+
+function onPokemonStatsDisplay(pic_number){
+    console.log(pic_number);
+}
+
+function makeVisible(id) {
+    document.getElementById(id).style.visibility = "visible";
+}
+
+function makeHidden(id) {
+    document.getElementById(id).style.visibility = "hidden";
 }
 
 /*
