@@ -61,7 +61,7 @@ svg {
 This application does some stuff blah.. blah.. blah.. explain it all here
 </h2>
 <div id="user_inputs">
-<form action="#" onsubmit="submitForm(this);">
+<form id="mainForm" action="#" onsubmit="submitForm(); return false;">
   Region:
   <input type="checkbox" name="Gen" value="1" checked> Kanto (Gen 1) &nbsp &nbsp
   <input type="checkbox" name="Gen" value="2"> Johto (Gen 2) &nbsp &nbsp
@@ -457,7 +457,8 @@ function criteriaSearch(lst){
  * Takes form as input, checks validity of form inputs, if everything 
  * works then function to display top Pokemon is called. 
  */
-function submitForm(form){
+function submitForm(){
+    var form = document.getElementById("mainForm");
     var countChecked = 0;
     var regionsUpdate = [];
     var legendUpdate = true;
