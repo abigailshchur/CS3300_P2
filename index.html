@@ -8,7 +8,7 @@
 <script src="https://rawgit.com/jasondavies/d3-cloud/master/build/d3.layout.cloud.js"></script>
 
 <style>
-body { font-family: 'Century Gothic', Calibri, sans-serif; font-size: 14; background-color: #EAF2F8}
+body { font-family: 'Century Gothic', Calibri, sans-serif; font-size: 14; background-color: #F9F9DE}
 h1 { 
     display: block;
     font-size: 2em;
@@ -30,20 +30,462 @@ h2 {
     text-align: center;
     font-size: 30px;
 }
+form {
+  text-align: center;
+  font-size: 1.2em;
+}
+
+input[type=button], input[type=submit], input[type=reset] {
+    background-color: #4B8CE1;
+    border: none;
+    color: white;
+    padding: 10px 30px;
+    text-decoration: none;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+
+svg { 
+    border: solid #ccc 1px;
+}
 </style>
 </head>
 <body>
 
 <h1> 
-<img src="pics/logo.png" alt="" style="width:470px;height:228px;">
-<img src="pics/team_builder.png" alt="" style="width:650px;height:228px;">
+<img src="pics/logo.png" alt="" style="width:400px;height:150px;">
+<img src="pics/team_builder.png" alt="" style="width:600px;height:150px;">
 </h1> 
 </br>
 <h2>
 This application does some stuff blah.. blah.. blah.. explain it all here
 </h2>
 <div id="user_inputs">
+<form action="#" onsubmit="submitForm(this);">
+  Region:
+  <input type="checkbox" name="Gen" value="1" checked> Kanto (Gen 1) &nbsp &nbsp
+  <input type="checkbox" name="Gen" value="2"> Johto (Gen 2) &nbsp &nbsp
+  <input type="checkbox" name="Gen" value="3"> Hoenn (Gen 3) &nbsp &nbsp
+  <input type="checkbox" name="Gen" value="4"> Sinnoh (Gen 4) &nbsp &nbsp
+  <input type="checkbox" name="Gen" value="5"> Unova (Gen 5) &nbsp &nbsp
+  <input type="checkbox" name="Gen" value="6"> Kalos (Gen 6) &nbsp &nbsp
+  </br>
+  </br>
+  Team Type:
+  <input type="radio" name="Team" value="total" checked> Stat Total &nbsp &nbsp
+  <input type="radio" name="Team" value="attack"> Attack &nbsp &nbsp
+  <input type="radio" name="Team" value="defense"> Defensive &nbsp &nbsp
+  <input type="radio" name="Team" value="mixed"> Mixed &nbsp &nbsp
+  <input type="radio" name="Team" value="random"> Random &nbsp &nbsp
+  </br>
+  </br>
+  Include Legendary Pokemon:
+  <input type="radio" name="Legend" value="yes" checked> Yes &nbsp &nbsp
+  <input type="radio" name="Legend" value="no"> No &nbsp &nbsp
+  </br>
+  </br>
+  Include Mega or Primal Evolutions:
+  <input type="radio" name="Mega" value="yes" checked> Yes &nbsp &nbsp
+  <input type="radio" name="Mega" value="no"> No &nbsp &nbsp
+  </br>
+  </br>
+  <input type="submit" value="Go!">
+</form>
 </div>
+
+<div id="pokemon_images" align="center">
+<svg id="pokemon_display" align="center" width="1400" height="300">
+</svg>
+
+</div>
+
+<script>
+var regions = [true,false,false,false,false,false];
+var teamType = "total";
+var legend = true;
+var mega = true;
+var total1 = []; var total2 = []; var total3 = []; var total4 = []; var total5 = []; var total6 = [];
+var atk1 = []; var atk2 = []; var atk3 = []; var atk4 = []; var atk5 = []; var atk6 = [];
+var def1 = []; var def2 = []; var def3 = []; var def4 = []; var def5 = []; var def6 = [];
+var total = [];
+var atk = [];
+var def = [];
+var team = [];
+var nextTeam = [];
+var nextAttack = []; // only needed for Mixed
+var nextDef = []; // only needed for Mixed
+var nextTotal = []; // only needed for Mixed
+var parseStatsRow = function(row) {
+    var l = false;
+    var isMega = false;
+    if (row["Legendary"]=="True"){
+        l = true;
+    }
+    idStr = row["#"];
+    if (row["Name"].includes("CharizardMega")){
+        if (row["Name"].includes("X")){
+            idStr = idStr + "-mega-x";
+        }
+        else{
+            idStr = idStr + "-mega-y";
+        }
+        isMega = true;
+    }
+    else if (row["Name"].includes("MewtwoMega")){
+        if (row["Name"].includes("X")){
+            idStr = idStr + "-mega-x";
+        }
+        else{
+            idStr = idStr + "-mega-y";
+        }
+        isMega = true;
+    }
+    else if (row["Name"].includes("Mega") && !row["Name"].includes("Meganium")){
+        idStr = idStr + "-mega";
+        isMega = true;
+    }
+    else if (row["Name"].includes("Primal")){
+        idStr = idStr + "-primal";
+        isMega = true;
+    }
+    else if (row["Name"].includes("Deoxys")){
+        if (row["Name"].includes("Normal")){
+            idStr = idStr + "-normal";
+        }
+        else if (row["Name"].includes("Attack")){
+            idStr = idStr + "-attack";
+        }
+        else if (row["Name"].includes("Defense")){
+            idStr = idStr + "-defense";
+
+        }
+        else if (row["Name"].includes("Speed")){
+            idStr = idStr + "-speed";
+
+        }
+    }
+    else if (row["Name"].includes("Wormadam")){
+        if (row["Name"].includes("Plant")){
+            idStr = idStr + "-plant";
+        }
+        else if (row["Name"].includes("Sandy")){
+            idStr = idStr + "-sandy";
+        }
+        else if (row["Name"].includes("Trash")){
+            idStr = idStr + "-trash";
+        }
+    }
+    else if (row["Name"].includes("Rotom")){
+        if (row["Name"].includes("Heat")){
+            idStr = idStr + "-heat";
+        }
+        else if (row["Name"].includes("Wash")){
+            idStr = idStr + "-wash";
+        }
+        else if (row["Name"].includes("Frost")){
+            idStr = idStr + "-frost";
+        }
+        else if (row["Name"].includes("Fan")){
+            idStr = idStr + "-fan";
+        }
+        else if (row["Name"].includes("Mow")){
+            idStr = idStr + "-mow";
+        }
+    }
+    else if (row["Name"].includes("Giratina")){
+        if (row["Name"].includes("Altered")){
+            idStr = idStr + "-altered";
+        }
+        else{
+            idStr = idStr + "-origin";
+        }
+    }
+    else if (row["Name"].includes("Shaymin")){
+        if (row["Name"].includes("Land")){
+            idStr = idStr + "-land";
+        }
+        else{
+            idStr = idStr + "-sky";
+        }
+    }
+    else if (row["Name"].includes("Tornadus") || row["Name"].includes("Thundurus") || row["Name"].includes("Landorus")){
+        if (row["Name"].includes("Incarnate")){
+            idStr = idStr + "-incarnate";
+        }
+        else{
+            idStr = idStr + "-therian";
+        }
+    }
+    else if (row["Name"].includes("Kyurem")){
+        if (row["Name"].includes("Black")){
+            idStr = idStr + "-black";
+        }
+        else if (row["Name"].includes("White")){
+            idStr = idStr + "-white";
+        }
+    }
+    else if (row["Name"].includes("Keldeo")){
+        if (row["Name"].includes("Ordinary")){
+            idStr = idStr + "-ordinary";
+        }
+        else if (row["Name"].includes("Resolute")){
+            idStr = idStr + "-resolute";
+        }
+    }
+    else if (row["Name"].includes("Meloetta")){
+        if (row["Name"].includes("Pirouette")){
+            idStr = idStr + "-pirouette";
+        }
+    }
+    else if (row["Name"].includes("Aegislash")){
+        if (row["Name"].includes("Blade")){
+            idStr = idStr + "-blade";
+        }
+        else{
+            idStr = idStr + "-shield";
+        }
+    }
+    else if (row["Name"].includes("HoopaHoopa")){
+        if (row["Name"].includes("Unbound")){
+            idStr = idStr + "-unbound";
+        }
+    }
+    return {
+        id: Number(row["#"]),
+        idStr: idStr,
+        gen: Number(row["Generation"]),
+        legend: l,
+        name: row["Name"],
+        type1 : row["Type 1"],
+        type2: row["Type 2"],
+        attack: Number(row["Attack"]),
+        defense: Number(row["Defense"]),
+        sp_attack: Number(row["Sp. Atk"]),
+        sp_defense: Number(row["Sp. Def"]),
+        hp: Number(row["HP"]),
+        speed: Number(row["Speed"]),
+        total: Number(row["Total"]),
+        attackTot: Math.max(Number(row["Attack"]), Number(row["Sp. Atk"])),
+        defTot: (Number(row["Defense"])+Number(row["Sp. Def"])+Number(row["HP"]))/3,
+        mega: isMega
+    };
+}
+
+// Asynchronous load just in case we use more data files
+d3.queue()
+.defer(d3.csv, "Pokemon.csv", parseStatsRow)
+//.defer(something)
+.await(function (error, pokemon_data) {
+    for (i = 0; i < pokemon_data.length; i++){
+        pokemon = pokemon_data[i];
+        total.push(pokemon);
+        atk.push(pokemon);
+        def.push(pokemon);
+        if (pokemon.gen == 1){
+            total1.push(pokemon); atk1.push(pokemon); def1.push(pokemon);
+        }
+        if (pokemon.gen == 2){
+            total2.push(pokemon); atk2.push(pokemon); def2.push(pokemon);
+        }
+        if (pokemon.gen == 3){
+            total3.push(pokemon); atk3.push(pokemon); def3.push(pokemon);
+        }
+        if (pokemon.gen == 4){
+            total4.push(pokemon); atk4.push(pokemon); def4.push(pokemon);
+        }
+        if (pokemon.gen == 5){
+            total5.push(pokemon); atk5.push(pokemon); def5.push(pokemon);
+        }
+        if (pokemon.gen == 6){
+            total6.push(pokemon); atk6.push(pokemon); def6.push(pokemon);
+        }
+    }
+    total.sort(function(a, b) {return parseFloat(b.total) - parseFloat(a.total);});
+    total1.sort(function(a, b) {return parseFloat(b.total) - parseFloat(a.total);});
+    total2.sort(function(a, b) {return parseFloat(b.total) - parseFloat(a.total);});
+    total3.sort(function(a, b) {return parseFloat(b.total) - parseFloat(a.total);});
+    total4.sort(function(a, b) {return parseFloat(b.total) - parseFloat(a.total);});
+    total5.sort(function(a, b) {return parseFloat(b.total) - parseFloat(a.total);});
+    total6.sort(function(a, b) {return parseFloat(b.total) - parseFloat(a.total);});
+
+    atk.sort(function(a, b) {return parseFloat(b.attackTot) - parseFloat(a.attackTot);});
+    atk1.sort(function(a, b) {return parseFloat(b.attackTot) - parseFloat(a.attackTot);});
+    atk2.sort(function(a, b) {return parseFloat(b.attackTot) - parseFloat(a.attackTot);});
+    atk3.sort(function(a, b) {return parseFloat(b.attackTot) - parseFloat(a.attackTot);});
+    atk4.sort(function(a, b) {return parseFloat(b.attackTot) - parseFloat(a.attackTot);});
+    atk5.sort(function(a, b) {return parseFloat(b.attackTot) - parseFloat(a.attackTot);});
+    atk6.sort(function(a, b) {return parseFloat(b.attackTot) - parseFloat(a.attackTot);});
+
+    def.sort(function(a, b) {return parseFloat(b.defTot) - parseFloat(a.defTot);});
+    def1.sort(function(a, b) {return parseFloat(b.defTot) - parseFloat(a.defTot);});
+    def2.sort(function(a, b) {return parseFloat(b.defTot) - parseFloat(a.defTot);});
+    def3.sort(function(a, b) {return parseFloat(b.defTot) - parseFloat(a.defTot);});
+    def4.sort(function(a, b) {return parseFloat(b.defTot) - parseFloat(a.defTot);});
+    def5.sort(function(a, b) {return parseFloat(b.defTot) - parseFloat(a.defTot);});
+    def6.sort(function(a, b) {return parseFloat(b.defTot) - parseFloat(a.defTot);});
+
+    displayPokemon();
+});
+
+
+function displayPokemon(){
+    var svg = d3.select("#pokemon_images").selectAll("svg");
+    svg.selectAll("*").remove();
+    teamData = makeTeam();
+    if (teamType == "total"){
+        team = teamData.total;
+        nextTeam = teamData.totalNext;
+    }
+    else if (teamType == "attack"){
+        team = teamData.atk;
+        nextTeam = teamData.atkNext;
+    }
+    else if (teamType == "defense"){
+        team = teamData.def;
+        nextTeam = teamData.defNext;
+    }
+    else if (teamType == "mixed"){
+        team = teamData.total.concat(teamData.atk);
+        team = team.concat(teamData.def);
+        nextAttack = teamData.atkNext;
+        nextDef = teamData.defNext;
+        nextTotal = teamData.totalNext;
+        
+    }
+    else if (teamType == "random"){
+        var fullTeam = shuffleArray(teamData.total.concat(teamData.totalNext));
+        var nextTeam = fullTeam.splice(6,fullTeam.length);
+        var team = fullTeam;
+    }
+    for (i = 0; i < 6; i++){
+        svg.append("image")
+            .attr("x", 25+i*220)
+            .attr("y", 50)
+            .attr("height", 200)
+            .attr("width", 200)
+            .attr("href", "pokemon_pics/" + team[i].idStr + ".png")
+            .attr("xlink:href", "pokemon_pics/" + team[i].idStr + ".png");
+    }
+}
+
+/*
+ * Taken from : http://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+ */
+function shuffleArray(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+    return array;
+}
+
+function makeTeam(){
+    var teamData = {
+        total : [],
+        totalNext: [],
+        atk : [],
+        atkNext: [],
+        def : [],
+        defNext : []
+    };
+    if (teamType == "total" || teamType == "random"){
+        teamData.total = criteriaSearch(total);
+        teamData.totalNext = teamData.total.splice(6,teamData.total.length);
+    }
+    if (teamType == "attack"){
+        teamData.atk = criteriaSearch(atk);
+        teamData.atkNext = teamData.atk.splice(6,teamData.atk.length);
+    }
+    if (teamType == "defense"){
+        teamData.def = criteriaSearch(def);
+        teamData.defNext = teamData.def.splice(6,teamData.def.length);
+    }
+    if (teamType == "mixed"){
+        teamData.total = criteriaSearch(total);
+        teamData.totalNext = teamData.total.splice(2,teamData.total.length);
+        var idlst = [teamData.total[0].idStr, teamData.total[1].idStr];
+        console.log(idlst);
+        var tempAttack = criteriaSearch(atk);
+        var nextAttack = tempAttack.shift();
+        while (idlst.indexOf(nextAttack.idStr)>=0){
+            nextAttack = tempAttack.shift();
+        }
+        teamData.atk.push(nextAttack);
+        idlst.push(nextAttack.idStr)
+        nextAttack = tempAttack.shift();
+        while (idlst.indexOf(nextAttack.idStr)>=0){
+            nextAttack = tempAttack.shift();
+        }
+        teamData.atk.push(nextAttack);
+        idlst.push(nextAttack.idStr)
+        teamData.atkNext = tempAttack;
+
+        var tempDef = criteriaSearch(def);
+        nextDef = tempDef.shift();
+        while (idlst.indexOf(nextDef.idStr)>=0){
+            nextDef = tempDef.shift();
+        }
+        teamData.def.push(nextDef);
+        idlst.push(nextDef.idStr)
+        nextDef = tempDef.shift();
+        while (idlst.indexOf(nextDef.idStr)>=0){
+            nextDef = tempDef.shift();
+        }
+        teamData.def.push(nextDef);
+        teamData.defNext = tempDef;
+    }
+    return teamData;
+}
+
+function criteriaSearch(lst){
+    inRegionPokemon = [];
+    for (i = 0; i < lst.length; i++){
+        var pokemon = lst[i];
+        if (regions[pokemon.gen-1]){
+            if (!pokemon.legend || legend){
+                if (!pokemon.mega || mega){
+                    inRegionPokemon.push(pokemon);
+                }
+            }
+        }
+    }
+    return inRegionPokemon;
+}
+/*
+ * Takes form as input, checks validity of form inputs, if everything 
+ * works then function to display top Pokemon is called. 
+ */
+function submitForm(form){
+    var countChecked = 0;
+    var regionsUpdate = [];
+    var legendUpdate = true;
+    var megaUpdate = true;
+    if (form.Legend.value == "no"){
+        legendUpdate = false;
+    }
+    if (form.Mega.value == "no"){
+        megaUpdate = false;
+    }
+    var teamTypeUpdate = form.Team.value;
+    for (i = 0; i < 6; i++) {
+        countChecked += form.Gen[i].checked;
+        regionsUpdate[i] = form.Gen[i].checked;
+    }
+    if (countChecked == 0){
+        // Maybe we should do something better here
+        console.log("Please check at least one Region");
+    }
+    else{
+        regions = regionsUpdate;
+        teamType = teamTypeUpdate;
+        legend = legendUpdate;
+        mega = megaUpdate;
+        displayPokemon();
+    }
+}
+</script>
 
 
 </body>
