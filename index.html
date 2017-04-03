@@ -434,6 +434,54 @@ function displayPokemon(){
         nextTeam = fullTeam.splice(6,fullTeam.length);
         team = fullTeam;
     }
+
+    if (teamType == "mixed"){
+        svg.append("rect")
+            .attr("x", 25)
+            .attr("y", 20)
+            .attr("fill", "green")
+            .attr("opacity", 0.2)
+            .attr("height", 200)
+            .attr("width", 420);
+        svg.append("rect")
+            .attr("x", 25+220*2)
+            .attr("y", 20)
+            .attr("fill", "red")
+            .attr("opacity", 0.2)
+            .attr("height", 200)
+            .attr("width", 420);
+        svg.append("rect")
+            .attr("x", 25+220*4)
+            .attr("y", 20)
+            .attr("fill", "blue")
+            .attr("opacity", 0.2)
+            .attr("height", 200)
+            .attr("width", 420);
+        svg.append("text")
+            .text("Highest Stat Total")
+            .attr("x", 230)
+            .attr("y", 245)
+            .style("font-size", "17px")
+            .style("font-weight","bold")
+            .attr("fill", "green")
+            .attr("text-anchor","middle");
+        svg.append("text")
+            .text("Best Attackers")
+            .attr("x", 230+2*220)
+            .attr("y", 245)
+            .style("font-size", "17px")
+            .style("font-weight","bold")
+            .attr("fill", "red")
+            .attr("text-anchor","middle");
+        svg.append("text")
+            .text("Defensive Walls")
+            .attr("x", 230+4*220)
+            .attr("y", 245)
+            .style("font-size", "17px")
+            .style("font-weight","bold")
+            .attr("fill", "blue")
+            .attr("text-anchor","middle");
+    }
     // appending images to svg
     idUsed = [];
     for (i = 0; i < 6; i++){
