@@ -22,13 +22,12 @@ h1 {
 }
 h2 { 
     display: block;
-    font-size: 2em;
+    font-size: 1.3em;
     margin-top: 0.67em;
-    margin-bottom: 0.67em;
+    margin-bottom: 1.5em;
     margin-left: 0;
     margin-right: 0;
-    text-align: center;
-    font-size: 30px;
+    text-align: start;
 }
 form {
   text-align: center;
@@ -93,7 +92,7 @@ input[type=button], input[type=submit], input[type=reset] {
 </h1> 
 </br>
 <h2>
-This application does some stuff blah.. blah.. blah.. explain it all here
+With over 700 Pokemon, it has become increasingly difficult to make an in-game or competitive team. This application is designed to make that process a little easier.  You can choose a subset of regions corresponding to which games you own. You can also pick the type of team you want. Stat total corresponds to the highest sum of all of the stats. Attack corresponds to the max of Special Attack and Attack. Defense corresponds to the average of Defense, Special Defense, and HP. Mixed corresponds to the top 2 of each of the preceding categories. Lastly, random is just random as expected. Beyond this, you can even limit your search by choosing whether you want to include Mega evolutions and Legendary Pokemon. Hover over a Pokemon to see their stats. Click on “Switch” if you want to go to the next optimal Pokemon. 
 </h2>
 <div id="user_inputs">
 <form id="mainForm" onsubmit="submitForm(); return false;">
@@ -131,14 +130,17 @@ This application does some stuff blah.. blah.. blah.. explain it all here
 <div id="pokemon_images" align="center">
 <svg id="pokemon_display" align="center" width="1400" height="300">
 </svg>
+</div>
 
+<div id="our names and disclaimer">
+Disclaimer: The Pokemon name, trademark and franchise are all Copyright to Nintendo, Pokemon, Creatures Inc and Game Freak inc. This application is a fan project and thus claims no rights or association with aforementioned companies or their products. Please support Pokemon by purchasing the official Games, Television Series, Manga, Merchandise, and so forth. If they don't make money then nobody would ever use an application like this. 
 </div>
 
 <script>
-var typeToColor = {"Grass": "#006622", "Poison": "#4d004d", "Fire":"#ff0000", "Flying":"#9900ff",
-"Dragon":"#000066", "Water":"#0000ff", "Bug": "#608000", "Normal":"#996633", "Electric":"#b3b300",
-"Ground":"#b36b00", "Fairy":"#cc0099", "Fighting":"#331a00", "Psychic":"#732673", "Rock":"#261a0d",
-"Steel":"#333333", "Ice":"#004080", "Ghost":"#29293d", "Dark":"#1f1f2e"};
+var typeToColor = {"Grass": "#006622", "Poison": "#7C0774", "Fire":"#D16B31", "Flying":"#B47EC1",
+"Dragon":"#5104D7", "Water":"#0000ff", "Bug": "#96A646", "Normal":"#A9A97E", "Electric":"#FED400",
+"Ground":"#CBAA4F", "Fairy":"#F7A3F7", "Fighting":"#930909", "Psychic":"#FE0088", "Rock":"#8D7533",
+"Steel":"#7C7C7C", "Ice":"#41F7F7", "Ghost":"#440159", "Dark":"#614D14"};
 var regions = [true,false,false,false,false,false];
 var teamType = "total";
 var legend = true;
