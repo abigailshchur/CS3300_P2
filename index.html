@@ -141,6 +141,8 @@ var typeToColor = {"Grass": "#006622", "Poison": "#7C0774", "Fire":"#D16B31", "F
 "Dragon":"#5104D7", "Water":"#0000ff", "Bug": "#96A646", "Normal":"#A9A97E", "Electric":"#FED400",
 "Ground":"#CBAA4F", "Fairy":"#F7A3F7", "Fighting":"#930909", "Psychic":"#FE0088", "Rock":"#8D7533",
 "Steel":"#7C7C7C", "Ice":"#41F7F7", "Ghost":"#440159", "Dark":"#614D14"};
+var typeLst = ["Normal", "Fire", "Water", "Electric", "Grass", "Ice", "Fighting", "Poison", "Ground",
+"Flying", "Psychic", "Bug", "Rock", "Ghost", "Dragon", "Dark", "Steel", "Fairy"];
 var regions = [true,false,false,false,false,false];
 var teamType = "total";
 var legend = true;
@@ -157,6 +159,9 @@ var nextAttack = []; // only needed for Mixed
 var nextDef = []; // only needed for Mixed
 var nextTotal = []; // only needed for Mixed
 var idUsed = []; // only needed for Mixed
+var typeToEff = {}; // give it a type, returns dict by type and value = effectiveness
+
+
 var parseStatsRow = function(row) {
     var l = false;
     var isMega = false;
@@ -346,11 +351,28 @@ var parseStatsRow = function(row) {
     };
 }
 
+function parseTypeChart(row){
+    row2 = {};
+    for (var i in row){
+        if (row[i] == ""){
+            row2[i] = 1;
+        }
+        else{
+            row2[i] = Number(row[i]);
+        }
+    }
+    return row2;
+}
+
 // Asynchronous load just in case we use more data files
 d3.queue()
 .defer(d3.csv, "Pokemon.csv", parseStatsRow)
-//.defer(something)
-.await(function (error, pokemon_data) {
+.defer(d3.csv, "pokemon_type_chart.csv", parseTypeChart)
+.await(function (error, pokemon_data, type_chart) {
+    for (i = 0; i < typeLst.length; i++){
+        typeToEff[typeLst[i]] = type_chart[i];
+    }
+    console.log(typeToEff);
     for (i = 0; i < pokemon_data.length; i++){
         pokemon = pokemon_data[i];
         total.push(pokemon);

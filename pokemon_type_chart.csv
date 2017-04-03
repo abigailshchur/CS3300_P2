@@ -1,4 +1,4 @@
-Attacker,Normal,Fire,Water,Electric,Grass,Ice,Fighting,Poison,Ground,Flying,Psychic,Bug,Rock,Ghost,Dragon,Dark,Steel,Fairy
+,Normal,Fire,Water,Electric,Grass,Ice,Fighting,Poison,Ground,Flying,Psychic,Bug,Rock,Ghost,Dragon,Dark,Steel,Fairy
 Normal,,,,,,,,,,,,,0.5,0,,,0.5,
 Fire,,0.5,0.5,,2,2,,,,,,2,0.5,,0.5,,2,
 Water,,2,0.5,,0.5,,,,2,,,,2,,0.5,,,
