@@ -36,13 +36,15 @@ form {
 }
 
 input[type=button], input[type=submit], input[type=reset] {
-    background-color: #4B8CE1;
+    background-color: #3D9970;
     border: none;
     color: white;
-    padding: 10px 30px;
+    padding: 5px 25px;
     text-decoration: none;
     margin: 4px 2px;
     cursor: pointer;
+    border-radius: 10px; 
+    font-size: 1em;
 }
 
 .team_stat:hover{
@@ -122,7 +124,7 @@ This application does some stuff blah.. blah.. blah.. explain it all here
   <input type="radio" name="Mega" value="no"> No &nbsp &nbsp
   </br>
   </br>
-  <input type="submit" value="Go!">
+  <input type="submit" value="Go!" >
 </form>
 </div>
 
@@ -438,6 +440,7 @@ function displayPokemon(){
         idUsed.push(team[i].idStr);
         svg.append("image")
             .attr("id","team_pic_"+i)
+            .attr("class", "team_pic")
             .attr("x", 25+i*220)
             .attr("y", 20)
             .attr("height", 200)
@@ -463,10 +466,11 @@ function displayPokemon(){
             .attr("ry", 8)
             .attr("height", button_height)
             .attr("width", button_width)
-            .attr("fill", "green")
+            .attr("fill", "#3D9970")
             .attr("onclick", "onSwitch("+i+")");
         svg.append("text")
             .text("Switch")
+            .attr("pointer-events", "none")
             .attr("x", i*220+125-button_width/2+3)
             .attr("y", 200+button_height+button_height/2+10)
             .style("fill", "white")
@@ -477,90 +481,129 @@ function displayPokemon(){
 
 function appendStats(i, svg){
     svg.append("rect")
-            .attr("id","team_stat_"+i)
-            .attr("class", "team_stat")
-            .attr("x", 25+i*220)
-            .attr("y", 20)
-            .attr("height", 200)
-            .attr("width", 200)
-            .attr("fill", "white")
-            .attr("opacity", 0);
-        // pokemon name
+        .attr("id","team_stat_"+i)
+        .attr("class", "team_stat")
+        .attr("x", 25+i*220)
+        .attr("y", 20)
+        .attr("height", 200)
+        .attr("width", 200)
+        .attr("fill", "white")
+        .attr("opacity", 0);
+    // pokemon name
+    svg.append("text")
+        .attr("id", "team_stat_text_"+i)
+        .attr("class", "team_stat_text")
+        .text(team[i].name)
+        .attr("x", 25+i*220+100)
+        .attr("y", 45)
+        .style("font-size", "17px")
+        .style("font-weight","bold")
+        .attr("opacity",0)
+        .attr("pointer-events", "none")
+        .attr("text-anchor","middle")
+        .attr("fill", "black");
+
+    // type of Pokemon
+    if (team[i].type2 == ""){
+        svg.append("rect")
+            .attr("id","team_stat_text_"+i)
+            .attr("class", "team_stat_text")
+            .attr("pointer-events", "none")
+            .attr("opacity", 0)
+            .attr("x", 25+i*220+45+10)
+            .attr("y", 55)
+            .attr("rx", 5)
+            .attr("ry", 5)
+            .attr("height", 20)
+            .attr("width", 90)
+            .attr("fill", typeToColor[team[i].type1]);
         svg.append("text")
             .attr("id", "team_stat_text_"+i)
             .attr("class", "team_stat_text")
-            .text(team[i].name)
+            .attr("pointer-events", "none")
+            .text(team[i].type1)
             .attr("x", 25+i*220+100)
-            .attr("y", 40)
+            .attr("y", 70)
             .attr("opacity",0)
             .attr("text-anchor","middle")
+            .attr("fill", "white");
+    }
+    else{
+        svg.append("rect")
+            .attr("id","team_stat_text_"+i)
+            .attr("class", "team_stat_text")
+            .attr("pointer-events", "none")
+            .attr("opacity", 0)
+            .attr("x", 25+i*220+10)
+            .attr("y", 55)
+            .attr("rx", 5)
+            .attr("ry", 5)
+            .attr("height", 20)
+            .attr("width", 85)
+            .attr("fill", typeToColor[team[i].type1]);
+        svg.append("rect")
+            .attr("id","team_stat_text_"+i)
+            .attr("class", "team_stat_text")
+            .attr("pointer-events", "none")
+            .attr("opacity", 0)
+            .attr("x", 25+i*220+110)
+            .attr("y", 55)
+            .attr("rx", 5)
+            .attr("ry", 5)
+            .attr("height", 20)
+            .attr("width", 85)
+            .attr("fill", typeToColor[team[i].type2]);
+        svg.append("text")
+            .attr("id", "team_stat_text_"+i)
+            .attr("class", "team_stat_text")
+            .attr("pointer-events", "none")
+            .text(team[i].type1)
+            .attr("x", 25+i*220+50)
+            .attr("y", 70)
+            .attr("opacity",0)
+            .attr("text-anchor","middle")
+            .attr("fill", "white");
+        svg.append("text")
+            .attr("id", "team_stat_text_"+i)
+            .attr("class", "team_stat_text")
+            .attr("pointer-events", "none")
+            .text(team[i].type2)
+            .attr("x", 25+i*220+150)
+            .attr("y", 70)
+            .attr("opacity",0)
+            .attr("text-anchor","middle")
+            .attr("fill", "white");
+    }
+    for (j = 0; j < 7; j++){
+        var field = ""; var fieldU = "";
+        if (j == 0) {field = "hp"; fieldU = "HP:";}
+        if (j == 1) {field = "attack"; fieldU = "Attack:";}
+        if (j == 2) {field = "defense"; fieldU = "Defense:";}
+        if (j == 3) {field = "sp_attack"; fieldU = "Sp. Attack:";}
+        if (j == 4) {field = "sp_defense"; fieldU = "Sp. Defense:";}
+        if (j == 5) {field = "speed"; fieldU = "Speed:";}
+        if (j == 6) {field = "total"; fieldU = "Total:";}
+        svg.append("text")
+            .attr("id", "team_stat_text_"+i)
+            .attr("class", "team_stat_text")
+            .attr("pointer-events", "none")
+            .text(fieldU)
+            .attr("x", 25+i*220+30)
+            .attr("y", 95+j*20)
+            .attr("opacity",0)
+            .attr("text-anchor","start")
             .attr("fill", "black");
-
-        // type of Pokemon
-        if (team[i].type2 == ""){
-            svg.append("rect")
-                .attr("id","team_stat_text_"+i)
-                .attr("class", "team_stat_text")
-                .attr("opacity", 0)
-                .attr("x", 25+i*220+45+10)
-                .attr("y", 45)
-                .attr("rx", 5)
-                .attr("ry", 5)
-                .attr("height", 20)
-                .attr("width", 90)
-                .attr("fill", typeToColor[team[i].type1]);
-            svg.append("text")
-                .attr("id", "team_stat_text_"+i)
-                .attr("class", "team_stat_text")
-                .text(team[i].type1)
-                .attr("x", 25+i*220+100)
-                .attr("y", 60)
-                .attr("opacity",0)
-                .attr("text-anchor","middle")
-                .attr("fill", "white");
-        }
-        else{
-            svg.append("rect")
-                .attr("id","team_stat_text_"+i)
-                .attr("class", "team_stat_text")
-                .attr("opacity", 0)
-                .attr("x", 25+i*220+10)
-                .attr("y", 45)
-                .attr("rx", 5)
-                .attr("ry", 5)
-                .attr("height", 20)
-                .attr("width", 85)
-                .attr("fill", typeToColor[team[i].type1]);
-            svg.append("rect")
-                .attr("id","team_stat_text_"+i)
-                .attr("class", "team_stat_text")
-                .attr("opacity", 0)
-                .attr("x", 25+i*220+110)
-                .attr("y", 45)
-                .attr("rx", 5)
-                .attr("ry", 5)
-                .attr("height", 20)
-                .attr("width", 85)
-                .attr("fill", typeToColor[team[i].type2]);
-            svg.append("text")
-                .attr("id", "team_stat_text_"+i)
-                .attr("class", "team_stat_text")
-                .text(team[i].type1)
-                .attr("x", 25+i*220+50)
-                .attr("y", 60)
-                .attr("opacity",0)
-                .attr("text-anchor","middle")
-                .attr("fill", "white");
-            svg.append("text")
-                .attr("id", "team_stat_text_"+i)
-                .attr("class", "team_stat_text")
-                .text(team[i].type2)
-                .attr("x", 25+i*220+150)
-                .attr("y", 60)
-                .attr("opacity",0)
-                .attr("text-anchor","middle")
-                .attr("fill", "white");
-        }
+        svg.append("text")
+            .attr("id", "team_stat_text_"+i)
+            .attr("class", "team_stat_text")
+            .attr("pointer-events", "none")
+            .text(team[i][field])
+            .attr("x", 25+i*220+120)
+            .attr("y", 95+j*20)
+            .attr("opacity",0)
+            .attr("text-anchor","start")
+            .attr("fill", "black");
+    }
 }
 
 /*
@@ -627,6 +670,7 @@ function onSwitch(id){
     pokemon_stats.remove();
     svg.append("image")
         .attr("id","team_pic_"+id)
+        .attr("class", "team_pic")
         .attr("x", 25+id*220)
         .attr("y", 20)
         .attr("height", 200)
