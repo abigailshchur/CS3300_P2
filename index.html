@@ -49,9 +49,14 @@ input[type=button], input[type=submit], input[type=reset] {
     opacity: 0.75;
 }
 
-svg { 
-    border: solid #ccc 1px;
+.switch_button:hover{
+    opacity: 0.75;
 }
+
+.switch_button:active{
+    opacity: 0.5;
+}
+
 </style>
 </head>
 <body>
@@ -119,6 +124,7 @@ var nextTeam = [];
 var nextAttack = []; // only needed for Mixed
 var nextDef = []; // only needed for Mixed
 var nextTotal = []; // only needed for Mixed
+var idUsed = []; // only needed for Mixed
 var parseStatsRow = function(row) {
     var l = false;
     var isMega = false;
@@ -362,15 +368,17 @@ function displayPokemon(){
     }
     else if (teamType == "random"){
         var fullTeam = shuffleArray(teamData.total.concat(teamData.totalNext));
-        var nextTeam = fullTeam.splice(6,fullTeam.length);
-        var team = fullTeam;
+        nextTeam = fullTeam.splice(6,fullTeam.length);
+        team = fullTeam;
     }
     // appending images to svg
+    idUsed = [];
     for (i = 0; i < 6; i++){
+        idUsed.push(team[i].idStr);
         svg.append("image")
             .attr("id","team_pic_"+i)
             .attr("x", 25+i*220)
-            .attr("y", 50)
+            .attr("y", 20)
             .attr("height", 200)
             .attr("width", 200)
             .attr("href", "pokemon_pics/" + team[i].idStr + ".png")
@@ -383,29 +391,116 @@ function displayPokemon(){
             .attr("id","team_stat_"+i)
             .attr("class", "team_stat")
             .attr("x", 25+i*220)
-            .attr("y", 50)
+            .attr("y", 20)
             .attr("height", 200)
             .attr("width", 200)
             .attr("fill", "white")
             .attr("opacity", 0);
     }
 
+    var button_width = 50;
+    var button_height = 25;
     // appending button to switch pokemon
     for (i = 0; i < 6; i++){
-        console.log("lets make this a button");
+        svg.append("rect")
+            .attr("class", "switch_button")
+            .attr("x", i*220+125-button_width/2)
+            .attr("y", 200+button_height+5)
+            .attr("rx", 8)
+            .attr("ry", 8)
+            .attr("height", button_height)
+            .attr("width", button_width)
+            .attr("fill", "green")
+            .attr("onclick", "onSwitch("+i+")");
+        svg.append("text")
+            .text("Switch")
+            .attr("x", i*220+125-button_width/2+3)
+            .attr("y", 200+button_height+button_height/2+10)
+            .style("fill", "white")
+            .style("cursor", "default")
+            .attr("onclick", "onSwitch("+i+")");
     }
 }
 
-function onPokemonStatsDisplay(pic_number){
-    console.log(pic_number);
-}
-
-function makeVisible(id) {
-    document.getElementById(id).style.visibility = "visible";
-}
-
-function makeHidden(id) {
-    document.getElementById(id).style.visibility = "hidden";
+/*
+ * Switches pokemon at the id to the next one in line
+ */
+function onSwitch(id){
+    var svg = d3.select("#pokemon_images").selectAll("svg");
+    if (teamType == "total" || teamType == "random" || teamType == "attack" || teamType == "defense"){
+        if (nextTeam.length == 0){
+            window.alert("You went through every Pokemon that fits your search criteria...");
+            return;
+        }
+        team[id] = nextTeam.shift();
+    }
+    else{
+        if (id < 2){
+            if (nextTotal.length == 0){
+                window.alert("You went through every Pokemon that fits your search criteria...");
+                return;
+            }
+            var nextPokemon = nextTotal.shift();
+            while (idUsed.indexOf(nextPokemon.idStr)>=0){
+                if (nextTotal.length == 0){
+                    window.alert("You went through every Pokemon that fits your search criteria...");
+                    return;
+                }
+                nextPokemon = nextTotal.shift();
+            }
+        }
+        else if (id < 4){
+            if (nextAttack.length == 0){
+                window.alert("You went through every Pokemon that fits your search criteria...");
+                return;
+            }
+            var nextPokemon = nextAttack.shift();
+            while (idUsed.indexOf(nextPokemon.idStr)>=0){
+                if (nextAttack.length == 0){
+                    window.alert("You went through every Pokemon that fits your search criteria...");
+                    return;
+                }
+                nextPokemon = nextAttack.shift();
+            }
+        }
+        else{
+            if (nextDef.length == 0){
+                window.alert("You went through every Pokemon that fits your search criteria...");
+                return;
+            }
+            var nextPokemon = nextDef.shift();
+            while (idUsed.indexOf(nextPokemon.idStr)>=0){
+                if (nextDef.length == 0){
+                    window.alert("You went through every Pokemon that fits your search criteria...");
+                    return;
+                }
+                nextPokemon = nextDef.shift();
+            }
+        }
+        idUsed.push(nextPokemon.idStr);
+        team[id] = nextPokemon;
+    }
+    var pokemon_pic = d3.select("#team_pic_"+id);
+    pokemon_pic.remove();
+    var pokemon_stats = d3.select("#team_stat_"+id);
+    pokemon_stats.remove();
+    svg.append("image")
+        .attr("id","team_pic_"+id)
+        .attr("x", 25+id*220)
+        .attr("y", 20)
+        .attr("height", 200)
+        .attr("width", 200)
+        .attr("href", "pokemon_pics/" + team[id].idStr + ".png")
+        .attr("xlink:href", "pokemon_pics/" + team[id].idStr + ".png");
+    svg.append("rect")
+        .attr("id","team_stat_"+id)
+        .attr("class", "team_stat")
+        .attr("x", 25+id*220)
+        .attr("y", 20)
+        .attr("height", 200)
+        .attr("width", 200)
+        .attr("fill", "white")
+        .attr("opacity", 0);
 }
 
 /*
@@ -516,7 +611,7 @@ function submitForm(){
     }
     if (countChecked == 0){
         // Maybe we should do something better here
-        console.log("Please check at least one Region");
+        window.alert("You need to check at least one region!");
     }
     else{
         regions = regionsUpdate;
