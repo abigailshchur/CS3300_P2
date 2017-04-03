@@ -49,6 +49,30 @@ input[type=button], input[type=submit], input[type=reset] {
     opacity: 0.75;
 }
 
+#team_stat_0:hover ~ #team_stat_text_0{
+    opacity: 1;
+}
+
+#team_stat_1:hover ~ #team_stat_text_1{
+    opacity: 1;
+}
+
+#team_stat_2:hover ~ #team_stat_text_2{
+    opacity: 1;
+}
+
+#team_stat_3:hover ~ #team_stat_text_3{
+    opacity: 1;
+}
+
+#team_stat_4:hover ~ #team_stat_text_4{
+    opacity: 1;
+}
+
+#team_stat_5:hover ~ #team_stat_text_5{
+    opacity: 1;
+}
+
 .switch_button:hover{
     opacity: 0.75;
 }
@@ -109,6 +133,10 @@ This application does some stuff blah.. blah.. blah.. explain it all here
 </div>
 
 <script>
+var typeToColor = {"Grass": "#006622", "Poison": "#4d004d", "Fire":"#ff0000", "Flying":"#9900ff",
+"Dragon":"#000066", "Water":"#0000ff", "Bug": "#608000", "Normal":"#996633", "Electric":"#b3b300",
+"Ground":"#b36b00", "Fairy":"#cc0099", "Fighting":"#331a00", "Psychic":"#732673", "Rock":"#261a0d",
+"Steel":"#333333", "Ice":"#004080", "Ghost":"#29293d", "Dark":"#1f1f2e"};
 var regions = [true,false,false,false,false,false];
 var teamType = "total";
 var legend = true;
@@ -135,53 +163,66 @@ var parseStatsRow = function(row) {
     if (row["Name"].includes("CharizardMega")){
         if (row["Name"].includes("X")){
             idStr = idStr + "-mega-x";
+            row["Name"] = "Mega Charizard X";
         }
         else{
             idStr = idStr + "-mega-y";
+            row["Name"] = "Mega Charizard Y";
         }
         isMega = true;
     }
     else if (row["Name"].includes("MewtwoMega")){
         if (row["Name"].includes("X")){
             idStr = idStr + "-mega-x";
+            row["Name"] = "Mega Mewtwo X";
         }
         else{
             idStr = idStr + "-mega-y";
+            row["Name"] = "Mega Mewtwo Y";
         }
         isMega = true;
     }
     else if (row["Name"].includes("Mega") && !row["Name"].includes("Meganium")){
         idStr = idStr + "-mega";
+        row["Name"] = "Mega " + row["Name"].split("Mega")[0];
         isMega = true;
     }
     else if (row["Name"].includes("Primal")){
         idStr = idStr + "-primal";
+        row["Name"] = "Primal " + row["Name"].split("Primal")[0];
         isMega = true;
     }
     else if (row["Name"].includes("Deoxys")){
         if (row["Name"].includes("Normal")){
+            row["Name"] = "Deoxys (Normal)";
             idStr = idStr + "-normal";
         }
         else if (row["Name"].includes("Attack")){
+            row["Name"] = "Deoxys (Attack)";
             idStr = idStr + "-attack";
         }
         else if (row["Name"].includes("Defense")){
+            row["Name"] = "Deoxys (Defense)";
             idStr = idStr + "-defense";
 
         }
         else if (row["Name"].includes("Speed")){
+            row["Name"] = "Deoxys (Speed)";
             idStr = idStr + "-speed";
 
         }
     }
     else if (row["Name"].includes("Wormadam")){
         if (row["Name"].includes("Plant")){
+            row["Name"] = "Wormadam Plant";
             idStr = idStr + "-plant";
         }
         else if (row["Name"].includes("Sandy")){
+            row["Name"] = "Wormadam Sandy";
             idStr = idStr + "-sandy";
         }
         else if (row["Name"].includes("Trash")){
+            row["Name"] = "Wormadam Trash";
             idStr = idStr + "-trash";
         }
     }
@@ -190,69 +231,89 @@ var parseStatsRow = function(row) {
             idStr = idStr + "-heat";
         }
         else if (row["Name"].includes("Wash")){
+            row["Name"] = "Rotom Wash";
             idStr = idStr + "-wash";
         }
         else if (row["Name"].includes("Frost")){
+            row["Name"] = "Rotom Frost";
             idStr = idStr + "-frost";
         }
         else if (row["Name"].includes("Fan")){
+            row["Name"] = "Rotom Fan";
             idStr = idStr + "-fan";
         }
         else if (row["Name"].includes("Mow")){
+            row["Name"] = "Rotom Mow";
             idStr = idStr + "-mow";
         }
     }
     else if (row["Name"].includes("Giratina")){
         if (row["Name"].includes("Altered")){
+            row["Name"] = "Giratina (Altered)";
             idStr = idStr + "-altered";
         }
         else{
+            row["Name"] = "Giratina (Origin)";
             idStr = idStr + "-origin";
         }
     }
     else if (row["Name"].includes("Shaymin")){
         if (row["Name"].includes("Land")){
+            row["Name"] = "Shaymin Land";
             idStr = idStr + "-land";
         }
         else{
+            row["Name"] = "Shaymin Sky";
             idStr = idStr + "-sky";
         }
     }
     else if (row["Name"].includes("Tornadus") || row["Name"].includes("Thundurus") || row["Name"].includes("Landorus")){
         if (row["Name"].includes("Incarnate")){
+            row["Name"] = row["Name"].split("Incarnate")[0]+" (Incarnate)";
             idStr = idStr + "-incarnate";
         }
         else{
+            row["Name"] = row["Name"].split("Therian")[0]+" (Therian)";
             idStr = idStr + "-therian";
         }
     }
     else if (row["Name"].includes("Kyurem")){
         if (row["Name"].includes("Black")){
+            row["Name"] = "Black Kyurem";
             idStr = idStr + "-black";
         }
         else if (row["Name"].includes("White")){
+            row["Name"] = "White Kyurem";
             idStr = idStr + "-white";
         }
     }
     else if (row["Name"].includes("Keldeo")){
         if (row["Name"].includes("Ordinary")){
+            row["Name"] = "Ordinary Keldeo";
             idStr = idStr + "-ordinary";
         }
         else if (row["Name"].includes("Resolute")){
+            row["Name"] = "Resolute Keldeo";
             idStr = idStr + "-resolute";
         }
     }
     else if (row["Name"].includes("Meloetta")){
         if (row["Name"].includes("Pirouette")){
+            row["Name"] = "Meloetta (Pirouette)";
             idStr = idStr + "-pirouette";
+        }
+        else{
+            row["Name"] = "Meloetta (Aria)";
         }
     }
     else if (row["Name"].includes("Aegislash")){
         if (row["Name"].includes("Blade")){
             idStr = idStr + "-blade";
+            row["Name"] = "Aegislash (Blade)";
         }
         else{
             idStr = idStr + "-shield";
+            row["Name"] = "Aegislash (Shield)";
         }
     }
     else if (row["Name"].includes("HoopaHoopa")){
@@ -385,17 +446,9 @@ function displayPokemon(){
             .attr("xlink:href", "pokemon_pics/" + team[i].idStr + ".png");
     }
 
-    // appending stat images
+    // appending stat text
     for (i = 0; i < 6; i++){
-        svg.append("rect")
-            .attr("id","team_stat_"+i)
-            .attr("class", "team_stat")
-            .attr("x", 25+i*220)
-            .attr("y", 20)
-            .attr("height", 200)
-            .attr("width", 200)
-            .attr("fill", "white")
-            .attr("opacity", 0);
+        appendStats(i, svg);
     }
 
     var button_width = 50;
@@ -420,6 +473,94 @@ function displayPokemon(){
             .style("cursor", "default")
             .attr("onclick", "onSwitch("+i+")");
     }
+}
+
+function appendStats(i, svg){
+    svg.append("rect")
+            .attr("id","team_stat_"+i)
+            .attr("class", "team_stat")
+            .attr("x", 25+i*220)
+            .attr("y", 20)
+            .attr("height", 200)
+            .attr("width", 200)
+            .attr("fill", "white")
+            .attr("opacity", 0);
+        // pokemon name
+        svg.append("text")
+            .attr("id", "team_stat_text_"+i)
+            .attr("class", "team_stat_text")
+            .text(team[i].name)
+            .attr("x", 25+i*220+100)
+            .attr("y", 40)
+            .attr("opacity",0)
+            .attr("text-anchor","middle")
+            .attr("fill", "black");
+
+        // type of Pokemon
+        if (team[i].type2 == ""){
+            svg.append("rect")
+                .attr("id","team_stat_text_"+i)
+                .attr("class", "team_stat_text")
+                .attr("opacity", 0)
+                .attr("x", 25+i*220+45+10)
+                .attr("y", 45)
+                .attr("rx", 5)
+                .attr("ry", 5)
+                .attr("height", 20)
+                .attr("width", 90)
+                .attr("fill", typeToColor[team[i].type1]);
+            svg.append("text")
+                .attr("id", "team_stat_text_"+i)
+                .attr("class", "team_stat_text")
+                .text(team[i].type1)
+                .attr("x", 25+i*220+100)
+                .attr("y", 60)
+                .attr("opacity",0)
+                .attr("text-anchor","middle")
+                .attr("fill", "white");
+        }
+        else{
+            svg.append("rect")
+                .attr("id","team_stat_text_"+i)
+                .attr("class", "team_stat_text")
+                .attr("opacity", 0)
+                .attr("x", 25+i*220+10)
+                .attr("y", 45)
+                .attr("rx", 5)
+                .attr("ry", 5)
+                .attr("height", 20)
+                .attr("width", 85)
+                .attr("fill", typeToColor[team[i].type1]);
+            svg.append("rect")
+                .attr("id","team_stat_text_"+i)
+                .attr("class", "team_stat_text")
+                .attr("opacity", 0)
+                .attr("x", 25+i*220+110)
+                .attr("y", 45)
+                .attr("rx", 5)
+                .attr("ry", 5)
+                .attr("height", 20)
+                .attr("width", 85)
+                .attr("fill", typeToColor[team[i].type2]);
+            svg.append("text")
+                .attr("id", "team_stat_text_"+i)
+                .attr("class", "team_stat_text")
+                .text(team[i].type1)
+                .attr("x", 25+i*220+50)
+                .attr("y", 60)
+                .attr("opacity",0)
+                .attr("text-anchor","middle")
+                .attr("fill", "white");
+            svg.append("text")
+                .attr("id", "team_stat_text_"+i)
+                .attr("class", "team_stat_text")
+                .text(team[i].type2)
+                .attr("x", 25+i*220+150)
+                .attr("y", 60)
+                .attr("opacity",0)
+                .attr("text-anchor","middle")
+                .attr("fill", "white");
+        }
 }
 
 /*
@@ -482,7 +623,7 @@ function onSwitch(id){
     }
     var pokemon_pic = d3.select("#team_pic_"+id);
     pokemon_pic.remove();
-    var pokemon_stats = d3.select("#team_stat_"+id);
+    var pokemon_stats = d3.selectAll("#team_stat_"+id);
     pokemon_stats.remove();
     svg.append("image")
         .attr("id","team_pic_"+id)
@@ -492,15 +633,7 @@ function onSwitch(id){
         .attr("width", 200)
         .attr("href", "pokemon_pics/" + team[id].idStr + ".png")
         .attr("xlink:href", "pokemon_pics/" + team[id].idStr + ".png");
-    svg.append("rect")
-        .attr("id","team_stat_"+id)
-        .attr("class", "team_stat")
-        .attr("x", 25+id*220)
-        .attr("y", 20)
-        .attr("height", 200)
-        .attr("width", 200)
-        .attr("fill", "white")
-        .attr("opacity", 0);
+    appendStats(id, svg);
 }
 
 /*
@@ -588,6 +721,7 @@ function criteriaSearch(lst){
     }
     return inRegionPokemon;
 }
+
 /*
  * Takes form as input, checks validity of form inputs, if everything 
  * works then function to display top Pokemon is called. 
@@ -610,7 +744,6 @@ function submitForm(){
         regionsUpdate[i] = form.Gen[i].checked;
     }
     if (countChecked == 0){
-        // Maybe we should do something better here
         window.alert("You need to check at least one region!");
     }
     else{
