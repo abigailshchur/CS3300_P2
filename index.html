@@ -8,7 +8,6 @@
 <script src="https://rawgit.com/jasondavies/d3-cloud/master/build/d3.layout.cloud.js"></script>
 
 <style>
-svg { border: solid #ccc 1px; }
 body { font-family: 'Century Gothic', Calibri, sans-serif; font-size: 14; background-color: #F9F9DE}
 h1 { 
     display: block;
@@ -45,6 +44,17 @@ input[type=button], input[type=submit], input[type=reset] {
     cursor: pointer;
     border-radius: 10px; 
     font-size: 1em;
+}
+
+.toolTip {
+    position: absolute;
+    display: none;
+    min-width: 60px;
+    height: auto;
+    background: none repeat scroll 0 0 #ffffff;
+    border: 1px solid #660000;
+    padding: 5px;
+    text-align: center;
 }
 
 .team_stat:hover{
@@ -164,6 +174,10 @@ var typeToColor = {"Grass": "#006622", "Poison": "#7C0774", "Fire":"#D16B31", "F
 "Steel":"#7C7C7C", "Ice":"#41F7F7", "Ghost":"#440159", "Dark":"#614D14"};
 var typeLst = ["Normal", "Fire", "Water", "Electric", "Grass", "Ice", "Fighting", "Poison", "Ground",
 "Flying", "Psychic", "Bug", "Rock", "Ghost", "Dragon", "Dark", "Steel", "Fairy"];
+var regionToIdx = {};
+for (i=0; i < typeLst.length; i++){
+    regionToIdx[typeLst[i]] = i;
+}
 var regions = [true,false,false,false,false,false];
 var teamType = "total";
 var legend = true;
@@ -394,7 +408,6 @@ d3.queue()
     for (i = 0; i < typeLst.length; i++){
         typeToEff[typeLst[i]] = type_chart[i];
     }
-    console.log(typeToEff);
     for (i = 0; i < pokemon_data.length; i++){
         pokemon = pokemon_data[i];
         total.push(pokemon);
@@ -814,7 +827,6 @@ function makeTeam(){
         teamData.total = criteriaSearch(total);
         teamData.totalNext = teamData.total.splice(2,teamData.total.length);
         var idlst = [teamData.total[0].idStr, teamData.total[1].idStr];
-        console.log(idlst);
         var tempAttack = criteriaSearch(atk);
         var nextAttack = tempAttack.shift();
         while (idlst.indexOf(nextAttack.idStr)>=0){
@@ -909,11 +921,63 @@ function submitForm2(){
     plotTypePercentages();
 }
 
-
+// Used https://bl.ocks.org/alandunning/7008d0332cc28a826b37b3cf6e7bd998 as reference
 function plotTypePercentages(){
     var svg = d3.select("#type_counts");
     svg.selectAll("*").remove(); // removes plot from before
-    // http://bl.ocks.org/kiranml1/6872226
+    var data = [];
+    for (i = 0; i < typeLst.length; i++){
+        data[i] = {"name": typeLst[i], "value": 0, "color": typeToColor[typeLst[i]]};
+    }
+    for (i = 0; i<total.length; i++){
+        var pokemon = total[i];
+        if (useAllRegionsType || regions[pokemon.gen-1]){
+            data[regionToIdx[pokemon.type1]].value+=1;
+            if (pokemon.type2!=""){
+                data[regionToIdx[pokemon.type2]].value+=1;
+            }
+        }
+    }
+    data = data.sort(function (a, b) {return d3.ascending(a.value, b.value);});
+
+    var margin = {top: 50, right: 20, bottom: 20, left: 80},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.bottom;
+  
+    var xScale = d3.scaleLinear().range([margin.left, width]).domain([0,d3.max(data, function(d){return d.value;})]);
+    var yScale = d3.scaleBand().range([height, margin.top]).padding(0.1).domain(data.map(function(d) { return d.name; }));
+    var tooltip = d3.select("body").append("div").attr("class", "toolTip");
+
+    svg.append("text")
+        .text("Counts of Each Type of Pokemon")
+        .attr("x", margin.left + width/2)
+        .attr("y", 35)
+        .attr("text-anchor","middle")
+        .attr("fill", "black");
+    svg.selectAll(".bar")
+        .data(data)
+        .enter().append("rect")
+        .attr("class", "bar")
+        .attr("width", function(d) {return xScale(d.value); } )
+        .attr("y", function(d) { return yScale(d.name); })
+        .attr("x", margin.left)
+        .attr("fill", function(d) {return d.color})
+        .attr("height", yScale.bandwidth())
+        .on("mousemove", function(d){
+            tooltip
+              .style("left", d3.event.pageX +10  + "px")
+              .style("top", d3.event.pageY -30 + "px")
+              .style("display", "inline-block")
+              .html((d.name) + ": "+ (d.value));
+        })
+            .on("mouseout", function(d){ tooltip.style("display", "none");});;
+
+    svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(xScale));
+    svg.append("g")
+        .attr("transform", "translate("+margin.left+",0)")
+        .call(d3.axisLeft(yScale));
 }
 </script>
 
