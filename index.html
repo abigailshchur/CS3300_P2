@@ -8,6 +8,7 @@
 <script src="https://rawgit.com/jasondavies/d3-cloud/master/build/d3.layout.cloud.js"></script>
 
 <style>
+
 body { font-family: 'Century Gothic', Calibri, sans-serif; font-size: 14; background-color: #F9F9DE}
 h1 { 
     display: block;
@@ -145,6 +146,7 @@ Note for Competitive Play: The teams returned are not necessarily allowed accord
 </svg>
 </div>
 
+
 <h1>
 Team Type Effectiveness: 
 </h1>
@@ -161,7 +163,13 @@ Every Pokemon has a corresponding type. Some Pokemon have 2 types. The first plo
 </form>
 </div>
 
+<div id "plots_group2" align="center">
 <svg id="type_counts" width="700" height="700"></svg>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp
+<svg id="team_type_chart" style="border: solid #ccc 1px;" width="700" height="700"></svg>
+</div>
+
+
 
 <div id="our names and disclaimer">
 Disclaimer: The Pokemon name, trademark and franchise are all Copyright to Nintendo, Pokemon, Creatures Inc and Game Freak inc. This application is a fan project and thus claims no rights or association with aforementioned companies or their products. Please support Pokemon by purchasing the official Games, Television Series, Manga, Merchandise, and so forth. If they don't make money then nobody would ever use an application like this. 
@@ -458,6 +466,7 @@ d3.queue()
 
     displayPokemon(); // first chart
     plotTypePercentages(); // second chart
+    plotTeamTypeChart(); // third chart
 });
 
 
@@ -787,6 +796,7 @@ function onSwitch(id){
         .attr("xlink:href", "pokemon_pics/" + team[id].idStr + ".png");
     appendStats(id, svg);
     plotTypePercentages();
+    plotTeamTypeChart();
 }
 
 /*
@@ -905,6 +915,7 @@ function submitForm(){
         mega = megaUpdate;
         displayPokemon();
         plotTypePercentages();
+        plotTeamTypeChart();
     }
 }
 
@@ -919,6 +930,7 @@ function submitForm2(){
         useAllRegionsType = false;
     }
     plotTypePercentages();
+    plotTeamTypeChart();
 }
 
 // Used https://bl.ocks.org/alandunning/7008d0332cc28a826b37b3cf6e7bd998 as reference
@@ -978,6 +990,32 @@ function plotTypePercentages(){
     svg.append("g")
         .attr("transform", "translate("+margin.left+",0)")
         .call(d3.axisLeft(yScale));
+}
+
+
+
+function plotTeamTypeChart(){
+    // I already dealt with calling this function in the appropriate spots
+    var svg = d3.select("#team_type_chart");
+    svg.selectAll("*").remove(); // removes plot from before (keep this)
+    svg.append("rect") // just to make sure its the right svg
+        .attr("x", 50)
+        .attr("y", 50)
+        .attr("height", 100)
+        .attr("width", 100)
+        .attr("fill", "black");
+    // relevant variables: 
+    // team: has members of current team
+    console.log(team);
+    // total: has all pokemon (in all regions)
+    // function above deals with case where we only want specific regions (this is similar) line 946
+    // typeToEff tells you what is effective against what
+    console.log(typeToEff);
+    // Note, for Pokemon with 2 types you multiply the values
+    // Plot should probably be pokemon x type, can incorporate both offensive and defensive somehow
+    // Maybe heatmap (colors can range from (red: 1/4x eff, light red for 1/2x eff, yellow for 1x, white for 0x, light green for 2x, dark green for 4x))
+    // Maybe another structure, idk what is best for showing both offense and defense 
+    // a bunch of variables are declared starting at line 179 that might be useful but I think I mentioned the ones that matter
 }
 </script>
 
