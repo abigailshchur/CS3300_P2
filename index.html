@@ -8,6 +8,7 @@
 <script src="https://rawgit.com/jasondavies/d3-cloud/master/build/d3.layout.cloud.js"></script>
 
 <style>
+svg { border: solid #ccc 1px; }
 body { font-family: 'Century Gothic', Calibri, sans-serif; font-size: 14; background-color: #F9F9DE}
 h1 { 
     display: block;
@@ -93,6 +94,8 @@ input[type=button], input[type=submit], input[type=reset] {
 </br>
 <h2>
 With over 700 Pokemon, it has become increasingly difficult to make an in-game or competitive team. This application is designed to make that process a little easier.  You can choose a subset of regions corresponding to which games you own. You can also pick the type of team you want. Stat total corresponds to the highest sum of all of the stats. Attack corresponds to the max of Special Attack and Attack. Defense corresponds to the average of Defense, Special Defense, and HP. Mixed corresponds to the top 2 of each of the preceding categories. Lastly, random is just random as expected. Beyond this, you can even limit your search by choosing whether you want to include Mega evolutions and Legendary Pokemon. Hover over a Pokemon to see their stats. Click on “Switch” if you want to go to the next optimal Pokemon. 
+</br> </br>
+Note for Competitive Play: The teams returned are not necessarily allowed according to competitive rules. It is recommended that you click away Pokemon until the team is allowed.
 </h2>
 <div id="user_inputs">
 <form id="mainForm" onsubmit="submitForm(); return false;">
@@ -132,6 +135,24 @@ With over 700 Pokemon, it has become increasingly difficult to make an in-game o
 </svg>
 </div>
 
+<h1>
+Team Type Effectiveness: 
+</h1>
+<h2>
+Every Pokemon has a corresponding type. Some Pokemon have 2 types. The first plot below shows the percentage of Pokemon corresponding to each type of either all Pokemon or the subset in the region specified. 
+</h2>
+
+<div id="user_inputs_2">
+<form id="form2">
+  Regions for Type Comparison: &nbsp &nbsp
+  <input onClick="submitForm2();" type="radio" name="R" value="all" checked> All Regions &nbsp &nbsp
+  <input onClick="submitForm2();" type="radio" name="R" value="subset"> Subset of Regions Checked Above &nbsp &nbsp
+  </br>
+</form>
+</div>
+
+<svg id="type_counts" width="700" height="700"></svg>
+
 <div id="our names and disclaimer">
 Disclaimer: The Pokemon name, trademark and franchise are all Copyright to Nintendo, Pokemon, Creatures Inc and Game Freak inc. This application is a fan project and thus claims no rights or association with aforementioned companies or their products. Please support Pokemon by purchasing the official Games, Television Series, Manga, Merchandise, and so forth. If they don't make money then nobody would ever use an application like this. 
 </div>
@@ -160,6 +181,7 @@ var nextDef = []; // only needed for Mixed
 var nextTotal = []; // only needed for Mixed
 var idUsed = []; // only needed for Mixed
 var typeToEff = {}; // give it a type, returns dict by type and value = effectiveness
+var useAllRegionsType = true;
 
 
 var parseStatsRow = function(row) {
@@ -421,7 +443,8 @@ d3.queue()
     def5.sort(function(a, b) {return parseFloat(b.defTot) - parseFloat(a.defTot);});
     def6.sort(function(a, b) {return parseFloat(b.defTot) - parseFloat(a.defTot);});
 
-    displayPokemon();
+    displayPokemon(); // first chart
+    plotTypePercentages(); // second chart
 });
 
 
@@ -750,6 +773,7 @@ function onSwitch(id){
         .attr("href", "pokemon_pics/" + team[id].idStr + ".png")
         .attr("xlink:href", "pokemon_pics/" + team[id].idStr + ".png");
     appendStats(id, svg);
+    plotTypePercentages();
 }
 
 /*
@@ -868,7 +892,28 @@ function submitForm(){
         legend = legendUpdate;
         mega = megaUpdate;
         displayPokemon();
+        plotTypePercentages();
     }
+}
+
+function submitForm2(){
+    var form = document.getElementById("form2");
+    if (form.R.value == "all"){
+        // do computation with everything (default)
+        useAllRegionsType = true;
+    }
+    else{
+        // do computation with just selected regions
+        useAllRegionsType = false;
+    }
+    plotTypePercentages();
+}
+
+
+function plotTypePercentages(){
+    var svg = d3.select("#type_counts");
+    svg.selectAll("*").remove(); // removes plot from before
+    // http://bl.ocks.org/kiranml1/6872226
 }
 </script>
 
