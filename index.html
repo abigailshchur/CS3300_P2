@@ -169,6 +169,14 @@ Every Pokemon has a corresponding type. Some Pokemon have 2 types. The first plo
 <svg id="team_type_chart" style="border: solid #ccc 1px;" width="1050" height="350"></svg>
 </div>
 
+<h2>
+Here is another plot, gotta explain it, look Pokemon move recommendations blah blah blah.
+</h2>
+
+<div id "plots_group3" align="center">
+<svg id="recommended_moves" style="border: solid #ccc 1px;" width="1500" height="1000"></svg>
+</div>
+
 
 
 <div id="our names and disclaimer">
@@ -204,6 +212,7 @@ var nextTotal = []; // only needed for Mixed
 var idUsed = []; // only needed for Mixed
 var typeToEff = {}; // give it a type, returns dict by type and value = effectiveness
 var useAllRegionsType = true;
+var typeToMoves = {};
 
 
 var parseStatsRow = function(row) {
@@ -408,13 +417,59 @@ function parseTypeChart(row){
     return row2;
 }
 
+function parseMoves(row){
+    var gen;
+    if (row.Gen === "I"){
+        gen = 1;
+    }
+    else if (row.Gen === "II"){
+        gen = 2;
+    }
+    else if (row.Gen === "III"){
+        gen = 3;
+    }
+    else if (row.Gen === "IV"){
+        gen = 4;
+    }
+    else if (row.Gen == "V"){
+        gen  = 5;
+    }
+    else{
+        gen = 6;
+    }
+    if (row.Power === ""){
+        return null;
+    }
+    var accuracy;
+    if (row.Accuracy === "")
+        accuracy = 1;
+    else{
+        accuracy = Number(row.Accuracy);
+    }
+    return {"id": Number(row.ID),
+            "name": row.Name,
+            "type": row.Type,
+            "attack_type": row.Attack_Type,
+            "contest_type": row.Contest_Type,
+            "gen" : gen,
+            "power" : Number(row.Power),
+            "pp" : Number(row.PP),
+            "accuracy" : accuracy
+    };
+}
+
 // Asynchronous load just in case we use more data files
 d3.queue()
 .defer(d3.csv, "Pokemon.csv", parseStatsRow)
 .defer(d3.csv, "pokemon_type_chart.csv", parseTypeChart)
-.await(function (error, pokemon_data, type_chart) {
+.defer(d3.csv, "moves.csv", parseMoves)
+.await(function (error, pokemon_data, type_chart, moves_table) {
     for (i = 0; i < typeLst.length; i++){
         typeToEff[typeLst[i]] = type_chart[i];
+        typeToMoves[typeLst[i]] = [];
+    }
+    for (i = 0; i < moves_table.length; i++){
+        typeToMoves[moves_table[i]["type"]].push(moves_table[i]);
     }
     for (i = 0; i < pokemon_data.length; i++){
         pokemon = pokemon_data[i];
@@ -467,6 +522,7 @@ d3.queue()
     displayPokemon(); // first chart
     plotTypePercentages(); // second chart
     plotTeamTypeChart(); // third chart
+    plotMoves(); // fourth chart
 });
 
 
@@ -797,6 +853,7 @@ function onSwitch(id){
     appendStats(id, svg);
     plotTypePercentages();
     plotTeamTypeChart();
+    plotMoves();
 }
 
 /*
@@ -916,6 +973,7 @@ function submitForm(){
         displayPokemon();
         plotTypePercentages();
         plotTeamTypeChart();
+        plotMoves();
     }
 }
 
@@ -931,6 +989,7 @@ function submitForm2(){
     }
     plotTypePercentages();
     plotTeamTypeChart();
+    plotMoves();
 }
 
 // Used https://bl.ocks.org/alandunning/7008d0332cc28a826b37b3cf6e7bd998 as reference
@@ -1000,11 +1059,11 @@ function plotTeamTypeChart(){
     svg.selectAll("*").remove(); // removes plot from before (keep this)
     // relevant variables: 
     // team: has members of current team
-    console.log(team);
+    //    console.log(team);
     // total: has all pokemon (in all regions)
     // function above deals with case where we only want specific regions (this is similar) line 946
     // typeToEff tells you what is effective against what
-    console.log(typeToEff);
+    //    console.log(typeToEff);
     // Note, for Pokemon with 2 types you multiply the values
     // Plot should probably be pokemon x type, can incorporate both offensive and defensive somehow
     // Maybe heatmap (colors can range from (red: 1/4x eff, light red for 1/2x eff, yellow for 1x, white for 0x, light green for 2x, dark green for 4x))
@@ -1024,6 +1083,7 @@ function plotTeamTypeChart(){
 	    	.attr("height", squareSides)
 	    	.style("fill", function(d){
 	    		if (p.type2){
+
 	    			return colorScale(typeToEff[p.type1][t]*typeToEff[p.type2][t]);
 	    		}
 	    		else{
@@ -1048,6 +1108,21 @@ function plotTeamTypeChart(){
     	.text(p.name);
     });
 
+}
+
+function plotMoves(){
+    // currently called in most of the right places (need to add call for when we change from offense to defense)
+    var svg = d3.select("#recommended_moves");
+    svg.selectAll("*").remove(); // removes plot from before (keep this)
+
+    svg.append("rect") // just to make sure plotting works
+        .attr("x", 50)
+        .attr("y", 50)
+        .attr("fill", "black")
+        .attr("height", 10)
+        .attr("width",10);
+    // To find code where the type button code is (just images not clickable) search for "type of Pokemon"
+    // All relevant move data is in typeToMoves
 }
 </script>
 
