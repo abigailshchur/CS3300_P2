@@ -1123,6 +1123,30 @@ function plotMoves(){
         .attr("width",10);
     // To find code where the type button code is (just images not clickable) search for "type of Pokemon"
     // All relevant move data is in typeToMoves
+    var button_width = 75;
+    var button_height = 25;
+    //var yscale_plotmoves = d3.scaleLinear().domain([0, 17]).range([100, 900]);
+
+    typeLst.forEach(function(t,i){
+        svg.append("rect")
+            .attr("class", "switch_button")
+            .attr("x", 50)
+            .attr("y", i*50 +50)
+            .attr("rx", 8)
+            .attr("ry", 8)
+            .attr("height", button_height)
+            .attr("width", button_width)
+            .attr("fill", "#3D9970")
+            .attr("onclick", "onSwitch("+i+")");
+        svg.append("text")
+            .text(t)
+            .attr("pointer-events", "none")
+            .attr("x", 53)
+            .attr("y", i*50 +68)
+            .style("fill", "white")
+            .style("cursor", "default")
+            .attr("onclick", "onSwitch("+i+")");
+    })
 }
 </script>
 
