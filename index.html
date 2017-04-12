@@ -188,7 +188,7 @@ Here is another plot, gotta explain it, look Pokemon move recommendations blah b
 </h2>
 
 <div id "plots_group3" align="center">
-<svg id="recommended_moves" style="border: solid #ccc 1px;" width="1500" height="1000"></svg>
+<svg id="recommended_moves" style="border: solid #ccc 1px;" width="1000" height="600"></svg>
 </div>
 
 
@@ -1288,15 +1288,17 @@ function buttonClickOff(){
     
 }
 
+
+
 function plotMoves(){
     // currently called in most of the right places (need to add call for when we change from offense to defense)
     var svg = d3.select("#recommended_moves");
     svg.selectAll("*").remove(); // removes plot from before (keep this)
 
     svg.append("rect") // just to make sure plotting works
-        .attr("x", 50)
-        .attr("y", 50)
-        .attr("fill", "black")
+        .attr("x", i)
+        .attr("y", i)
+        .attr("fill", "#F9F9DE")
         .attr("height", 10)
         .attr("width",10);
     // To find code where the type button code is (just images not clickable) search for "type of Pokemon"
@@ -1313,22 +1315,39 @@ function plotMoves(){
         svg.append("rect")
             .attr("class", "switch_button")
             .attr("x", 50)
-            .attr("y", i*50 +50)
+            .attr("y", i*30 +40)
             .attr("rx", 8)
             .attr("ry", 8)
             .attr("height", button_height)
             .attr("width", button_width)
             .attr("fill", d.color)
-            .attr("onclick", "onSwitch("+i+")");
+            .attr("onclick", "movesInfo("+i+")");
         svg.append("text")
             .text(d.name)
             .attr("pointer-events", "none")
             .attr("x", 53)
-            .attr("y", i*50 +68)
+            .attr("y", i*30 +58)
             .style("fill", "white")
             .style("cursor", "default")
-            .attr("onclick", "onSwitch("+i+")");
+            .attr("onclick", "movesInfo("+i+")");
     })
+}
+
+function movesInfo(i){
+    var svg = d3.select("#recommended_moves");
+    svg.append("rect")
+    .attr("x", 250)
+    .attr("y", 150)
+    .attr("fill", "#F9F9DE")
+    .attr("height", 200)
+    .attr("width",500)
+    .attr("stroke", "black");
+    svg.append("text")
+    .text("The strongest type against type " +data[i].name+ " is:")
+    //.attr("pointer-events", "none")
+    .attr("x", 255)
+    .attr("y", 170)
+    .style("fill", "black")
 }
 </script>
 
