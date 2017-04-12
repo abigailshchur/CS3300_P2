@@ -1128,7 +1128,7 @@ function plotTeamTypeChart(){
               .style("left", d3.event.pageX +10  + "px")
               .style("top", d3.event.pageY -30 + "px")
               .style("display", "inline-block")
-              .html((p.name) + ": "+ teamToDamage[p.name][t.name])
+              .html("When attacking, "+(p.name) + " has a damage multiplier of "+ teamToDamage[p.name][t.name]*100 + "% against " + t.name + " types")
             })
             .on("mouseout", function(d){ tooltip.style("display", "none");});
     	});
@@ -1168,18 +1168,29 @@ function plotTeamTypeChart(){
     .attr("stop-opacity", 1);
 
     svg.append("rect")
-    .attr("width", 510)
+    .attr("width", 530)
     .attr("height", 10)
     .attr("x",400)
     .attr("y" ,360)
     .style("fill", "url(#gradient)");
 
-    ["0", "0.25", "0.5", "1", "2", "4"].forEach(function(d,i){
+    ["0%", "25%", "50%", "100%", "200%", "400%"].forEach(function(d,i){
         svg.append("text")
         .text(d)
         .attr("x", i*100)
         .attr("y", 0)
-        .attr("transform", "translate(400, 380)");
+        .attr("transform", "translate(400, 385)");
+    });
+
+    ["No Effect", "Not Very Effective", "Not Effective", "Normal", "Super Effective", "Super Super Effective!"].forEach(function(d,i){
+        svg.append("text")
+        .text(d)
+        .attr("class", "legendlabels")
+        .attr("font-size", 10)
+        .attr("x", i*100)
+        .attr("y", 0)
+        .attr("text-anchor", "middle")
+        .attr("transform", "translate(412, 395)");
     });
 
 }
@@ -1199,7 +1210,7 @@ function buttonClickDef(){
               .style("top", d3.event.pageY -30 + "px")
               .style("display", "inline-block")
               .html(function(z){
-                return (p.name) + ": "+ teamToWeakness[p.name][t];
+                return "When being attacked, "+(p.name) + " sustains "+ teamToDamage[p.name][t]*100 + "% damage from " + t + " types"
                 });
             })
             .on("mouseout", function(d){ tooltip.style("display", "none");});
@@ -1246,6 +1257,18 @@ function buttonClickDef(){
     .attr("stop-color", "#BF000D")
     .attr("stop-opacity", 1);
 
+    svg.selectAll(".legendlabels").remove();
+    ["Perfect Defense", "Very Good Defense", "Good Defense", "Normal", "Weak Against", "Super Weak Against"].forEach(function(d,i){
+        svg.append("text")
+        .text(d)
+        .attr("class", "legendlabels")
+        .attr("font-size", 10)
+        .attr("x", i*100)
+        .attr("y", 0)
+        .attr("text-anchor", "middle")
+        .attr("transform", "translate(412, 395)");
+    });
+
 }
 
 function buttonClickOff(){
@@ -1262,8 +1285,8 @@ function buttonClickOff(){
               .style("left", d3.event.pageX +10  + "px")
               .style("top", d3.event.pageY -30 + "px")
               .style("display", "inline-block")
-              .html((p.name) + ": "+ teamToDamage[p.name][t])
-            })
+              .html(("When attacking, "+(p.name) + " has a damage multiplier of "+ teamToDamage[p.name][t]*100 + "% against " + t + " types"))
+          })
             .on("mouseout", function(d){ tooltip.style("display", "none");});
 
     rects.transition().duration(750)
@@ -1286,6 +1309,17 @@ function buttonClickOff(){
     .attr("stop-color", "#1C8901")
     .attr("stop-opacity", 1);
     
+    svg.selectAll(".legendlabels").remove();
+    ["No Effect", "Not Very Effective", "Not Effective", "Normal", "Super Effective", "Super Super Effective!"].forEach(function(d,i){
+        svg.append("text")
+        .text(d)
+        .attr("class", "legendlabels")
+        .attr("font-size", 10)
+        .attr("x", i*100)
+        .attr("y", 0)
+        .attr("text-anchor", "middle")
+        .attr("transform", "translate(412, 395)");
+    });
 }
 
 function plotMoves(){
