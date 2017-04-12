@@ -166,7 +166,21 @@ Every Pokemon has a corresponding type. Some Pokemon have 2 types. The first plo
 <div id "plots_group2" align="center">
 <svg id="type_counts" width="700" height="700"></svg>
 &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp
-<svg id="team_type_chart" style="border: solid #ccc 1px;" width="1050" height="350"></svg>
+
+<div id="option">
+    <input name="updateButton" 
+           type="button" 
+           value="Offense" 
+           id = "offensebutton"
+           style = "background-color:gray"
+           onclick="buttonClickOff()" />
+    <input name="updateButton" 
+           type="button" 
+           value="Defense" 
+           id= "defensebutton"
+           onclick="buttonClickDef()" />
+</div>
+<svg id="team_type_chart" style="border: solid #ccc 1px;" width="1050" height="400"></svg>
 </div>
 
 <h2>
@@ -190,6 +204,14 @@ var typeToColor = {"Grass": "#006622", "Poison": "#7C0774", "Fire":"#D16B31", "F
 "Steel":"#7C7C7C", "Ice":"#41F7F7", "Ghost":"#440159", "Dark":"#614D14"};
 var typeLst = ["Normal", "Fire", "Water", "Electric", "Grass", "Ice", "Fighting", "Poison", "Ground",
 "Flying", "Psychic", "Bug", "Rock", "Ghost", "Dragon", "Dark", "Steel", "Fairy"];
+
+var colorDictDef = {"0":"#FFFFFF","0.25":"#F2CCCE", "0.5":"#E5999E","1":"#D8666D","2":"#CB333D","4":"#BF000D"} //darker = more vulnerable
+
+var colorDict = {"4":"#1C8901","2":"#49A033", "1":"#76B866","0.5":"#A4CF99","0.25":"#D1E7CC","0":"#FFFFFF"}; //for heatmap; darker= more damage
+
+var teamToDamage = {}; //pokemon and the type they're good against - higher number - more damage
+var teamToWeakness = {}; //pokemon and the type they're weak against - higher number = more vulnerable
+
 var regionToIdx = {};
 for (i=0; i < typeLst.length; i++){
     regionToIdx[typeLst[i]] = i;
@@ -213,7 +235,7 @@ var idUsed = []; // only needed for Mixed
 var typeToEff = {}; // give it a type, returns dict by type and value = effectiveness
 var useAllRegionsType = true;
 var typeToMoves = {};
-
+var data = [];
 
 var parseStatsRow = function(row) {
     var l = false;
@@ -996,7 +1018,7 @@ function submitForm2(){
 function plotTypePercentages(){
     var svg = d3.select("#type_counts");
     svg.selectAll("*").remove(); // removes plot from before
-    var data = [];
+
     for (i = 0; i < typeLst.length; i++){
         data[i] = {"name": typeLst[i], "value": 0, "color": typeToColor[typeLst[i]]};
     }
@@ -1054,51 +1076,69 @@ function plotTypePercentages(){
 
 
 function plotTeamTypeChart(){
-    // I already dealt with calling this function in the appropriate spots
+
     var svg = d3.select("#team_type_chart");
     svg.selectAll("*").remove(); // removes plot from before (keep this)
-    // relevant variables: 
-    // team: has members of current team
-    //    console.log(team);
-    // total: has all pokemon (in all regions)
-    // function above deals with case where we only want specific regions (this is similar) line 946
-    // typeToEff tells you what is effective against what
-    //    console.log(typeToEff);
-    // Note, for Pokemon with 2 types you multiply the values
-    // Plot should probably be pokemon x type, can incorporate both offensive and defensive somehow
-    // Maybe heatmap (colors can range from (red: 1/4x eff, light red for 1/2x eff, yellow for 1x, white for 0x, light green for 2x, dark green for 4x))
-    // Maybe another structure, idk what is best for showing both offense and defense 
-    // a bunch of variables are declared starting at line 179 that might be useful but I think I mentioned the ones that matter
+
+    document.getElementById("offensebutton").style.background = "gray";
+    document.getElementById("defensebutton").style.background = "#3D9970";
+
     xMargin = 150;
     yMargin = 50;
     squareSides = 50;
-    var colorScale = d3.scaleOrdinal().domain(["0","0.25", "0.5","1.0","2.0","4.0"]).range(["#FFFFFF","#F2CCCE","#E5999E","#D8666D","#CB333D","#BF000D"]);
+    var mostCommonTypes = [].concat(data).reverse(); //non-destructive reverse
+    var tooltip = d3.select("body").append("div").attr("class", "toolTip");
 
-    typeLst.forEach(function(t, i){
+    mostCommonTypes.forEach(function(t, i){
     	team.forEach(function(p, j){
     		svg.append("rect")
+            .attr("class", "map_rect")
+            .attr("id", j+t.name)
 	    	.attr("x",i*squareSides+xMargin)
 	    	.attr("y", j*squareSides+yMargin)
 	    	.attr("width", squareSides)
 	    	.attr("height", squareSides)
 	    	.style("fill", function(d){
 	    		if (p.type2){
-
-	    			return colorScale(typeToEff[p.type1][t]*typeToEff[p.type2][t]);
+                    newdict = {};
+                    newdict[t.name] = typeToEff[p.type1][t.name]*typeToEff[p.type2][t.name];
+                    if (teamToDamage[p.name]){
+                        teamToDamage[p.name]= Object.assign(teamToDamage[p.name], newdict);
+                    }
+                    else{
+                        teamToDamage[p.name] = newdict;
+                    }
+	    			return colorDict[teamToDamage[p.name][t.name]];
 	    		}
 	    		else{
-	    			return colorScale(typeToEff[p.type1][t]);
+                    newdict = {};
+                    newdict[t.name] = typeToEff[p.type1][t.name];
+                    if (teamToDamage[p.name]){
+                        teamToDamage[p.name]= Object.assign(teamToDamage[p.name], newdict);
+                    }
+                    else{
+                        teamToDamage[p.name] = newdict;
+                    }
+	    			return colorDict[teamToDamage[p.name][t.name]];
 	    		}
 	    	})
 	    	.style("stroke", "black")
-	    	.on("click", function(d){
-	    		console.log(t,p);
-	    	});
+            .on("mousemove", function(d){
+            tooltip
+              .style("left", d3.event.pageX +10  + "px")
+              .style("top", d3.event.pageY -30 + "px")
+              .style("display", "inline-block")
+              .html((p.name) + ": "+ teamToDamage[p.name][t.name])
+            })
+            .on("mouseout", function(d){ tooltip.style("display", "none");});
     	});
     	svg.append("text")
-    	.attr("x", i*squareSides+xMargin)
-    	.attr("y", 35)
-    	.text(t);
+    	.attr("x", 0)
+        .attr("text-anchor", "middle")
+    	.attr("y", 0)
+    	.text(t.name)
+        .attr("fill", typeToColor[t.name])
+        .attr("transform", "translate(" + (i*squareSides+xMargin+30) + ", 30) rotate(-40)");
     });
 
     team.forEach(function(p, j){
@@ -1108,6 +1148,144 @@ function plotTeamTypeChart(){
     	.text(p.name);
     });
 
+    var gradient = svg.append("defs")
+    .append("linearGradient")
+    .attr("id", "gradient")
+    .attr("x1", "0%")
+    .attr("y1", "0%")
+    .attr("x2", "100%")
+    .attr("y2", "100%")
+    .attr("spreadMethod", "pad");
+
+    gradient.append("stop")
+    .attr("offset", "0%")
+    .attr("stop-color", "#ffffff")
+    .attr("stop-opacity", 1);
+
+    gradient.append("stop")
+    .attr("offset", "100%")
+    .attr("stop-color", "#1C8901")
+    .attr("stop-opacity", 1);
+
+    svg.append("rect")
+    .attr("width", 510)
+    .attr("height", 10)
+    .attr("x",400)
+    .attr("y" ,360)
+    .style("fill", "url(#gradient)");
+
+    ["0", "0.25", "0.5", "1", "2", "4"].forEach(function(d,i){
+        svg.append("text")
+        .text(d)
+        .attr("x", i*100)
+        .attr("y", 0)
+        .attr("transform", "translate(400, 380)");
+    });
+
+}
+
+function buttonClickDef(){
+    document.getElementById("defensebutton").style.background = "gray";
+    document.getElementById("offensebutton").style.background = "#3D9970";
+    var svg = d3.select("#team_type_chart");
+    var tooltip = d3.select("body").append("div").attr("class", "toolTip");
+    var rects = svg.selectAll(".map_rect");
+    
+    rects.on("mousemove", function(d){
+            p = team[parseInt(this.getAttribute("id"))];
+            t = this.getAttribute("id").substring(1);
+            tooltip
+              .style("left", d3.event.pageX +10  + "px")
+              .style("top", d3.event.pageY -30 + "px")
+              .style("display", "inline-block")
+              .html(function(z){
+                return (p.name) + ": "+ teamToWeakness[p.name][t];
+                });
+            })
+            .on("mouseout", function(d){ tooltip.style("display", "none");});
+
+    rects.transition().duration(750)
+    .style("fill", function(d){
+        p = team[parseInt(this.getAttribute("id"))];
+        t = this.getAttribute("id").substring(1);
+
+        if (p.type2){
+            newdict = {};
+            newdict[t] = typeToEff[t][p.type1]*typeToEff[t][p.type2];
+            if (teamToWeakness[p.name]){
+                teamToWeakness[p.name]= Object.assign(teamToWeakness[p.name], newdict);
+            }
+            else{
+                teamToWeakness[p.name] = newdict;
+            }
+            return colorDictDef[teamToWeakness[p.name][t]];
+        }
+        else{
+            newdict = {};
+            newdict[t] = typeToEff[t][p.type1];
+            if (teamToWeakness[p.name]){
+                teamToWeakness[p.name]= Object.assign(teamToWeakness[p.name], newdict);
+            }
+            else{
+                teamToWeakness[p.name] = newdict;
+            }
+            return colorDictDef[teamToWeakness[p.name][t]];
+        }
+    });
+    gradient = svg.select("#gradient");
+
+    gradient.selectAll("stop").remove();
+
+    gradient.append("stop")
+    .attr("offset", "0%")
+    .attr("stop-color", "#ffffff")
+    .attr("stop-opacity", 1);
+
+    gradient.append("stop")
+    .attr("offset", "100%")
+    .attr("stop-color", "#BF000D")
+    .attr("stop-opacity", 1);
+
+}
+
+function buttonClickOff(){
+    document.getElementById("offensebutton").style.background = "gray";
+    document.getElementById("defensebutton").style.background = "#3D9970";
+    var tooltip = d3.select("body").append("div").attr("class", "toolTip");
+    var svg = d3.select("#team_type_chart");
+    var rects = svg.selectAll(".map_rect");
+
+    rects.on("mousemove", function(d){
+        p = team[parseInt(this.getAttribute("id"))];
+        t = this.getAttribute("id").substring(1);
+            tooltip
+              .style("left", d3.event.pageX +10  + "px")
+              .style("top", d3.event.pageY -30 + "px")
+              .style("display", "inline-block")
+              .html((p.name) + ": "+ teamToDamage[p.name][t])
+            })
+            .on("mouseout", function(d){ tooltip.style("display", "none");});
+
+    rects.transition().duration(750)
+    .style("fill", function(d){
+        p = team[parseInt(this.getAttribute("id"))];
+        t = this.getAttribute("id").substring(1);
+        return colorDict[teamToDamage[p.name][t]];
+        })
+
+    gradient = svg.select("#gradient");
+    gradient.selectAll("stop").remove();
+
+    gradient.append("stop")
+    .attr("offset", "0%")
+    .attr("stop-color", "#ffffff")
+    .attr("stop-opacity", 1);
+
+    gradient.append("stop")
+    .attr("offset", "100%")
+    .attr("stop-color", "#1C8901")
+    .attr("stop-opacity", 1);
+    
 }
 
 function plotMoves(){
