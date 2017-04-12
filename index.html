@@ -1305,7 +1305,11 @@ function plotMoves(){
     var button_height = 25;
     //var yscale_plotmoves = d3.scaleLinear().domain([0, 17]).range([100, 900]);
 
-    typeLst.forEach(function(t,i){
+    for (i = 0; i < typeLst.length; i++){
+        data[i] = {"name": typeLst[i], "value": 0, "color": typeToColor[typeLst[i]]};
+    }
+
+    data.forEach(function(d, i){
         svg.append("rect")
             .attr("class", "switch_button")
             .attr("x", 50)
@@ -1314,10 +1318,10 @@ function plotMoves(){
             .attr("ry", 8)
             .attr("height", button_height)
             .attr("width", button_width)
-            .attr("fill", "#3D9970")
+            .attr("fill", d.color)
             .attr("onclick", "onSwitch("+i+")");
         svg.append("text")
-            .text(t)
+            .text(d.name)
             .attr("pointer-events", "none")
             .attr("x", 53)
             .attr("y", i*50 +68)
