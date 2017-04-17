@@ -216,7 +216,6 @@ var total = [];
 var atk = [];
 var def = [];
 var team = [];
-var team_rev = [];
 var nextTeam = [];
 var nextAttack = []; // only needed for Mixed
 var nextDef = []; // only needed for Mixed
@@ -617,7 +616,6 @@ function displayPokemon(){
             .attr("fill", "blue")
             .attr("text-anchor","middle");
     }
-    team_rev = team.reverse();
     // appending images to svg
     idUsed = [];
     for (i = 0; i < 6; i++){
@@ -848,7 +846,6 @@ function onSwitch(id){
         idUsed.push(nextPokemon.idStr);
         team[id] = nextPokemon;
     }
-    team_rev = team.reverse();
     var pokemon_pic = d3.select("#team_pic_"+id);
     pokemon_pic.remove();
     var pokemon_stats = d3.selectAll("#team_stat_"+id);
@@ -1066,9 +1063,8 @@ function plotTypePercentages(){
     squareSides = 42;
     var mostCommonTypes = [].concat(data).reverse(); //non-destructive reverse
     var tooltip = d3.select("body").append("div").attr("class", "toolTip");
-
     mostCommonTypes.forEach(function(t, i){
-        team_rev.forEach(function(p, j){
+        team.forEach(function(p, j){
             chart.append("rect")
             .attr("class", "map_rect")
             .attr("id", j+t.name)
