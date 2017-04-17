@@ -1063,8 +1063,9 @@ function plotTypePercentages(){
     squareSides = 42;
     var mostCommonTypes = [].concat(data).reverse(); //non-destructive reverse
     var tooltip = d3.select("body").append("div").attr("class", "toolTip");
+    var team_rev = team.map((e, i, a)=> a[(a.length -1) -i]);
     mostCommonTypes.forEach(function(t, i){
-        team.forEach(function(p, j){
+        team_rev.forEach(function(p, j){
             chart.append("rect")
             .attr("class", "map_rect")
             .attr("id", j+t.name)
@@ -1108,7 +1109,7 @@ function plotTypePercentages(){
         });
     });
     
-    team.forEach(function(p, j){
+    team_rev.forEach(function(p, j){
         chart.append("image")
         .attr("x",0)
         .attr("y",0)
