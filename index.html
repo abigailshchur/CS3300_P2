@@ -164,9 +164,6 @@ Every Pokemon has a corresponding type. Some Pokemon have 2 types. The first plo
 </div>
 
 <div id "plots_group2" align="center">
-<svg id="type_counts" width="700" height="700"></svg>
-&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp
-
 <div id="option">
     <input name="updateButton" 
            type="button" 
@@ -180,15 +177,7 @@ Every Pokemon has a corresponding type. Some Pokemon have 2 types. The first plo
            id= "defensebutton"
            onclick="buttonClickDef()" />
 </div>
-<svg id="team_type_chart" style="border: solid #ccc 1px;" width="1050" height="1050"></svg>
-</div>
-
-<h2>
-Here is another plot, gotta explain it, look Pokemon move recommendations blah blah blah.
-</h2>
-
-<div id "plots_group3" align="center">
-<svg id="recommended_moves" style="border: solid #ccc 1px;" width="1000" height="600"></svg>
+<svg id="type_counts" style="border: solid #ccc 1px;" width="1400" height="850"></svg>
 </div>
 
 
@@ -227,6 +216,7 @@ var total = [];
 var atk = [];
 var def = [];
 var team = [];
+var team_rev = [];
 var nextTeam = [];
 var nextAttack = []; // only needed for Mixed
 var nextDef = []; // only needed for Mixed
@@ -543,8 +533,6 @@ d3.queue()
 
     displayPokemon(); // first chart
     plotTypePercentages(); // second chart
-    plotTeamTypeChart(); // third chart
-    plotMoves(); // fourth chart
 });
 
 
@@ -629,6 +617,7 @@ function displayPokemon(){
             .attr("fill", "blue")
             .attr("text-anchor","middle");
     }
+    team_rev = team.reverse();
     // appending images to svg
     idUsed = [];
     for (i = 0; i < 6; i++){
@@ -859,6 +848,7 @@ function onSwitch(id){
         idUsed.push(nextPokemon.idStr);
         team[id] = nextPokemon;
     }
+    team_rev = team.reverse();
     var pokemon_pic = d3.select("#team_pic_"+id);
     pokemon_pic.remove();
     var pokemon_stats = d3.selectAll("#team_stat_"+id);
@@ -874,8 +864,6 @@ function onSwitch(id){
         .attr("xlink:href", "pokemon_pics/" + team[id].idStr + ".png");
     appendStats(id, svg);
     plotTypePercentages();
-    plotTeamTypeChart();
-    plotMoves();
 }
 
 /*
@@ -994,8 +982,6 @@ function submitForm(){
         mega = megaUpdate;
         displayPokemon();
         plotTypePercentages();
-        plotTeamTypeChart();
-        plotMoves();
     }
 }
 
@@ -1010,12 +996,11 @@ function submitForm2(){
         useAllRegionsType = false;
     }
     plotTypePercentages();
-    plotTeamTypeChart();
-    plotMoves();
 }
 
 // Used https://bl.ocks.org/alandunning/7008d0332cc28a826b37b3cf6e7bd998 as reference
 function plotTypePercentages(){
+    /* CODE FOR BAR PLOT */
     var svg = d3.select("#type_counts");
     svg.selectAll("*").remove(); // removes plot from before
 
@@ -1033,18 +1018,20 @@ function plotTypePercentages(){
     }
     data = data.sort(function (a, b) {return d3.ascending(a.value, b.value);});
 
-    var margin = {top: 50, right: 20, bottom: 20, left: 80},
-    width = +svg.attr("width") - margin.left - margin.right,
-    height = +svg.attr("height") - margin.bottom;
+    var margin = {top_bar: 32, right_bar: 50, bottom_bar: 55, left_bar: 900},
+    width_bar = +svg.attr("width") - margin.right_bar,
+    height_bar = +svg.attr("height") - margin.bottom_bar;
   
-    var xScale = d3.scaleLinear().range([margin.left, width]).domain([0,d3.max(data, function(d){return d.value;})]);
-    var yScale = d3.scaleBand().range([height, margin.top]).padding(0.1).domain(data.map(function(d) { return d.name; }));
+    var xScale = d3.scaleLinear().range([0, width_bar-margin.left_bar-margin.right_bar])
+                .domain([0,d3.max(data, function(d){return d.value;})]);
+    var yScale = d3.scaleBand().range([height_bar, margin.top_bar]).padding(0.2)
+                .domain(data.map(function(d) { return d.name; }));
     var tooltip = d3.select("body").append("div").attr("class", "toolTip");
 
     svg.append("text")
         .text("Counts of Each Type of Pokemon")
-        .attr("x", margin.left + width/2)
-        .attr("y", 35)
+        .attr("x", margin.left_bar+(width_bar-margin.left_bar-margin.right_bar)/2)
+        .attr("y", 20)
         .attr("text-anchor","middle")
         .attr("fill", "black");
     svg.selectAll(".bar")
@@ -1053,7 +1040,7 @@ function plotTypePercentages(){
         .attr("class", "bar")
         .attr("width", function(d) {return xScale(d.value); } )
         .attr("y", function(d) { return yScale(d.name); })
-        .attr("x", margin.left)
+        .attr("x", margin.left_bar)
         .attr("fill", function(d) {return d.color})
         .attr("height", yScale.bandwidth())
         .on("mousemove", function(d){
@@ -1065,43 +1052,32 @@ function plotTypePercentages(){
         })
             .on("mouseout", function(d){ tooltip.style("display", "none");});;
 
-    svg.append("g")
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(xScale));
-    svg.append("g")
-        .attr("transform", "translate("+margin.left+",0)")
-        .call(d3.axisLeft(yScale));
-}
 
-
-
-function plotTeamTypeChart(){
-
-    var svg = d3.select("#team_type_chart");
-    svg.selectAll("*").remove(); // removes plot from before (keep this)
+    /* CODE FOR HEATMAP */
 
     document.getElementById("offensebutton").style.background = "gray";
     document.getElementById("defensebutton").style.background = "#3D9970";
 
     var chart = svg.append("g").attr("transform", "rotate(90) translate(-60, -700)");
 
-    xMargin = 150;
+    xMargin = 100;
     yMargin = 50;
-    squareSides = 50;
+    xAdjust = 199;
+    squareSides = 42;
     var mostCommonTypes = [].concat(data).reverse(); //non-destructive reverse
     var tooltip = d3.select("body").append("div").attr("class", "toolTip");
 
     mostCommonTypes.forEach(function(t, i){
-    	team.forEach(function(p, j){
-    		chart.append("rect")
+        team_rev.forEach(function(p, j){
+            chart.append("rect")
             .attr("class", "map_rect")
             .attr("id", j+t.name)
-	    	.attr("x",i*squareSides+xMargin)
-	    	.attr("y", j*squareSides+yMargin)
-	    	.attr("width", squareSides)
-	    	.attr("height", squareSides)
-	    	.style("fill", function(d){
-	    		if (p.type2){
+            .attr("x",i*squareSides+xMargin)
+            .attr("y", j*squareSides-xAdjust)
+            .attr("width", squareSides)
+            .attr("height", squareSides)
+            .style("fill", function(d){
+                if (p.type2){
                     newdict = {};
                     newdict[t.name] = typeToEff[p.type1][t.name]*typeToEff[p.type2][t.name];
                     if (teamToDamage[p.name]){
@@ -1110,9 +1086,9 @@ function plotTeamTypeChart(){
                     else{
                         teamToDamage[p.name] = newdict;
                     }
-	    			return colorDict[teamToDamage[p.name][t.name]];
-	    		}
-	    		else{
+                    return colorDict[teamToDamage[p.name][t.name]];
+                }
+                else{
                     newdict = {};
                     newdict[t.name] = typeToEff[p.type1][t.name];
                     if (teamToDamage[p.name]){
@@ -1121,10 +1097,10 @@ function plotTeamTypeChart(){
                     else{
                         teamToDamage[p.name] = newdict;
                     }
-	    			return colorDict[teamToDamage[p.name][t.name]];
-	    		}
-	    	})
-	    	.style("stroke", "black")
+                    return colorDict[teamToDamage[p.name][t.name]];
+                }
+            })
+            .style("stroke", "black")
             .on("mousemove", function(d){
             tooltip
               .style("left", d3.event.pageX +10  + "px")
@@ -1133,22 +1109,18 @@ function plotTeamTypeChart(){
               .html("When attacking, "+(p.name) + " has a damage multiplier of "+ teamToDamage[p.name][t.name]*100 + "% against " + t.name + " types")
             })
             .on("mouseout", function(d){ tooltip.style("display", "none");});
-    	});
-    	chart.append("text")
-    	.attr("x", 0)
-        .attr("text-anchor", "middle")
-    	.attr("y", 0)
-    	.text(t.name)
-        .attr("fill", typeToColor[t.name])
-        .attr("transform", "translate(" + (i*squareSides+xMargin+30) + ", 20) rotate(-90)");
+        });
     });
-
+    
     team.forEach(function(p, j){
-    	chart.append("text")
-    	.attr("x",0)
-    	.attr("y", 0)
-    	.text(p.name)
-        .attr("transform", "translate(150,"+ (j*squareSides+80)+ ") rotate(-120)");
+        chart.append("image")
+        .attr("x",0)
+        .attr("y",0)
+        .attr("width",42)
+        .attr("height",42)
+        .attr("href", "pokemon_pics/" + p.idStr + ".png")
+        .attr("xlink:href", "pokemon_pics/" + p.idStr + ".png")
+        .attr("transform", "translate(60,"+ (j*squareSides-xAdjust+40)+ ") rotate(-90)");;
     });
 
     var gradient = svg.append("defs")
@@ -1173,8 +1145,8 @@ function plotTeamTypeChart(){
     svg.append("rect")
     .attr("width", 530)
     .attr("height", 10)
-    .attr("x",260)
-    .attr("y" ,1010)
+    .attr("x",700)
+    .attr("y" ,805)
     .style("fill", "url(#gradient)");
 
     ["0%", "25%", "50%", "100%", "200%", "400%"].forEach(function(d,i){
@@ -1182,7 +1154,7 @@ function plotTeamTypeChart(){
         .text(d)
         .attr("x", i*100)
         .attr("y", 0)
-        .attr("transform", "translate(260, 1035)");
+        .attr("transform", "translate(700, 830)");
     });
 
     ["No Effect", "Not Very Effective", "Not Effective", "Normal", "Super Effective", "Super Super Effective!"].forEach(function(d,i){
@@ -1190,18 +1162,19 @@ function plotTeamTypeChart(){
         .text(d)
         .attr("class", "legendlabels")
         .attr("font-size", 10)
-        .attr("x", i*100)
+        .attr("x", i*100+10)
         .attr("y", 0)
         .attr("text-anchor", "middle")
-        .attr("transform", "translate(260, 1045)");
+        .attr("transform", "translate(700, 845)");
     });
 
+    plotMoves();
 }
 
 function buttonClickDef(){
     document.getElementById("defensebutton").style.background = "gray";
     document.getElementById("offensebutton").style.background = "#3D9970";
-    var svg = d3.select("#team_type_chart");
+    var svg = d3.select("#type_counts");
     var tooltip = d3.select("body").append("div").attr("class", "toolTip");
     var rects = svg.selectAll(".map_rect");
     
@@ -1266,10 +1239,10 @@ function buttonClickDef(){
         .text(d)
         .attr("class", "legendlabels")
         .attr("font-size", 10)
-        .attr("x", i*100)
-        .attr("y", 0)
+        .attr("x", i*100+10)
+        .attr("y", 10)
         .attr("text-anchor", "middle")
-        .attr("transform", "translate(260, 1045)");
+        .attr("transform", "translate(700, 830)");
     });
 
 }
@@ -1278,7 +1251,7 @@ function buttonClickOff(){
     document.getElementById("offensebutton").style.background = "gray";
     document.getElementById("defensebutton").style.background = "#3D9970";
     var tooltip = d3.select("body").append("div").attr("class", "toolTip");
-    var svg = d3.select("#team_type_chart");
+    var svg = d3.select("#type_counts");
     var rects = svg.selectAll(".map_rect");
 
     rects.on("mousemove", function(d){
@@ -1318,10 +1291,10 @@ function buttonClickOff(){
         .text(d)
         .attr("class", "legendlabels")
         .attr("font-size", 10)
-        .attr("x", i*100)
-        .attr("y", 0)
+        .attr("x", i*100+10)
+        .attr("y", 10)
         .attr("text-anchor", "middle")
-        .attr("transform", "translate(260, 1045)");
+        .attr("transform", "translate(700, 830)");
     });
 }
 
@@ -1329,30 +1302,25 @@ function buttonClickOff(){
 
 function plotMoves(){
     // currently called in most of the right places (need to add call for when we change from offense to defense)
-    var svg = d3.select("#recommended_moves");
-    svg.selectAll("*").remove(); // removes plot from before (keep this)
+    var svg = d3.select("#type_counts");
+    //svg.selectAll("*").remove(); // removes plot from before (keep this)
 
-    svg.append("rect") // just to make sure plotting works
-        .attr("x", i)
-        .attr("y", i)
-        .attr("fill", "#F9F9DE")
-        .attr("height", 10)
-        .attr("width",10);
     // To find code where the type button code is (just images not clickable) search for "type of Pokemon"
     // All relevant move data is in typeToMoves
     var button_width = 75;
     var button_height = 25;
+    var xOffset = 565;
     //var yscale_plotmoves = d3.scaleLinear().domain([0, 17]).range([100, 900]);
 
-    for (i = 0; i < typeLst.length; i++){
-        data[i] = {"name": typeLst[i], "value": 0, "color": typeToColor[typeLst[i]]};
-    }
-
+    //for (i = 0; i < typeLst.length; i++){
+    //    data[i] = {"name": typeLst[i], "value": 0, "color": typeToColor[typeLst[i]]};
+    //}
+    data = data.reverse();
     data.forEach(function(d, i){
         svg.append("rect")
             .attr("class", "switch_button")
-            .attr("x", 50)
-            .attr("y", i*30 +40)
+            .attr("x", xOffset)
+            .attr("y", i*42 +50)
             .attr("rx", 8)
             .attr("ry", 8)
             .attr("height", button_height)
@@ -1362,8 +1330,9 @@ function plotMoves(){
         svg.append("text")
             .text(d.name)
             .attr("pointer-events", "none")
-            .attr("x", 53)
-            .attr("y", i*30 +58)
+            .attr("text-anchor","middle")
+            .attr("x", xOffset+button_width/2)
+            .attr("y", i*42 +50 + button_height/2+5)
             .style("fill", "white")
             .style("cursor", "default")
             .attr("onclick", "movesInfo("+i+")");
@@ -1371,18 +1340,19 @@ function plotMoves(){
 }
 
 function movesInfo(i){
-    var svg = d3.select("#recommended_moves");
+    var svg = d3.select("#type_counts");
     svg.append("rect")
-    .attr("x", 250)
+    .attr("x", 10)
     .attr("y", 150)
     .attr("fill", "#F9F9DE")
     .attr("height", 200)
     .attr("width",500)
     .attr("stroke", "black");
+
     svg.append("text")
     .text("The strongest type against type " +data[i].name+ " is:")
     //.attr("pointer-events", "none")
-    .attr("x", 255)
+    .attr("x", 15)
     .attr("y", 170)
     .style("fill", "black")
 }
