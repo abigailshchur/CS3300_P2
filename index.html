@@ -1174,9 +1174,9 @@ function buttonClickDef(){
     var svg = d3.select("#type_counts");
     var tooltip = d3.select("body").append("div").attr("class", "toolTip");
     var rects = svg.selectAll(".map_rect");
-    
+    var team_rev = team.map((e, i, a)=> a[(a.length -1) -i]);
     rects.on("mousemove", function(d){
-            p = team[parseInt(this.getAttribute("id"))];
+            p = team_rev[parseInt(this.getAttribute("id"))];
             t = this.getAttribute("id").substring(1);
             tooltip
               .style("left", d3.event.pageX +10  + "px")
@@ -1187,10 +1187,10 @@ function buttonClickDef(){
                 });
             })
             .on("mouseout", function(d){ tooltip.style("display", "none");});
-
+    
     rects.transition().duration(750)
     .style("fill", function(d){
-        p = team[parseInt(this.getAttribute("id"))];
+        p = team_rev[parseInt(this.getAttribute("id"))];
         t = this.getAttribute("id").substring(1);
 
         if (p.type2){
@@ -1250,9 +1250,9 @@ function buttonClickOff(){
     var tooltip = d3.select("body").append("div").attr("class", "toolTip");
     var svg = d3.select("#type_counts");
     var rects = svg.selectAll(".map_rect");
-
+    var team_rev = team.map((e, i, a)=> a[(a.length -1) -i]);
     rects.on("mousemove", function(d){
-        p = team[parseInt(this.getAttribute("id"))];
+        p = team_rev[parseInt(this.getAttribute("id"))];
         t = this.getAttribute("id").substring(1);
             tooltip
               .style("left", d3.event.pageX +10  + "px")
@@ -1261,10 +1261,9 @@ function buttonClickOff(){
               .html(("When attacking, "+(p.name) + " has a damage multiplier of "+ teamToDamage[p.name][t]*100 + "% against " + t + " types"))
           })
             .on("mouseout", function(d){ tooltip.style("display", "none");});
-
     rects.transition().duration(750)
     .style("fill", function(d){
-        p = team[parseInt(this.getAttribute("id"))];
+        p = team_rev[parseInt(this.getAttribute("id"))];
         t = this.getAttribute("id").substring(1);
         return colorDict[teamToDamage[p.name][t]];
         })
@@ -1350,7 +1349,8 @@ function movesInfo(index){
     .attr("id", "moves_chart")
     .attr("x", 10)
     .attr("y", 50)
-    .attr("fill", "#F9F9DE")
+    //.attr("fill", "#F9F9DE")
+    .attr("fill",  LightenDarkenColor(data[index].color, 200))
     .attr("height", 750)
     .attr("width",500)
     .attr("stroke", data[index].color)
@@ -1380,13 +1380,34 @@ function movesInfo(index){
     .attr("y1", index*42 +50 + 25/2)
     .attr("x2", 525)
     .attr("y2", index*42 +50 + 25/2)          
-    .attr("stroke-width", 2)
+    .attr("stroke-width", 1)
     .attr("stroke", data[index].color)
     .attr("marker-end", "url(#arrow)");
 
     var marker = svg.select('#arrow');
     marker.style("fill", data[index].color);
 
+}
+
+
+// https://css-tricks.com/snippets/javascript/lighten-darken-color/
+function LightenDarkenColor(col, amt) {
+    var usePound = false;
+    if (col[0] == "#") {
+        col = col.slice(1);
+        usePound = true;
+    }
+    var num = parseInt(col,16);
+    var r = (num >> 16) + amt;
+    if (r > 255) r = 255;
+    else if  (r < 0) r = 0;
+    var b = ((num >> 8) & 0x00FF) + amt;
+    if (b > 255) b = 255;
+    else if  (b < 0) b = 0;
+    var g = (num & 0x0000FF) + amt;
+    if (g > 255) g = 255;
+    else if (g < 0) g = 0;
+    return (usePound?"#":"") + (g | (b << 8) | (r << 16)).toString(16);
 }
 </script>
 
