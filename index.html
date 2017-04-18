@@ -1333,25 +1333,60 @@ function plotMoves(){
             .style("fill", "white")
             .style("cursor", "default")
             .attr("onclick", "movesInfo("+i+")");
-    })
+    });
+    movesInfo(0);
 }
 
-function movesInfo(i){
+function movesInfo(index){
+    console.log(data[index]);
+    var color_used = data[index].color;
     var svg = d3.select("#type_counts");
+    var old_chart = d3.selectAll("#moves_chart");
+    old_chart.remove();
+    var marker = svg.select('#arrow');
+    marker.remove();
+
     svg.append("rect")
+    .attr("id", "moves_chart")
     .attr("x", 10)
-    .attr("y", 150)
+    .attr("y", 50)
     .attr("fill", "#F9F9DE")
-    .attr("height", 200)
+    .attr("height", 750)
     .attr("width",500)
-    .attr("stroke", "black");
+    .attr("stroke", data[index].color)
+    .attr("stroke-width",5);
 
     svg.append("text")
-    .text("The strongest type against type " +data[i].name+ " is:")
+    .text("The strongest type against type " +data[index].name+ " is:")
+    .attr("id", "moves_chart")
     //.attr("pointer-events", "none")
     .attr("x", 15)
-    .attr("y", 170)
-    .style("fill", "black")
+    .attr("y", 50)
+    .style("fill", "black");
+
+    svg.append("svg:defs").append("svg:marker")
+    .attr("id", "arrow")
+    .attr("refX", 5)
+    .attr("refY", 5)
+    .attr("markerWidth", 30)
+    .attr("markerHeight", 30)
+    .attr("orient", "auto")
+    .append("path")
+    .attr("d", "M 0 0 12 6 0 12 3 6");
+    //line              
+    svg.append("line")
+    .attr("id", "moves_chart")
+    .attr("x1", 560)
+    .attr("y1", index*42 +50 + 25/2)
+    .attr("x2", 525)
+    .attr("y2", index*42 +50 + 25/2)          
+    .attr("stroke-width", 2)
+    .attr("stroke", data[index].color)
+    .attr("marker-end", "url(#arrow)");
+
+    var marker = svg.select('#arrow');
+    marker.style("fill", data[index].color);
+
 }
 </script>
 
