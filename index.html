@@ -1183,7 +1183,7 @@ function buttonClickDef(){
               .style("top", d3.event.pageY -30 + "px")
               .style("display", "inline-block")
               .html(function(z){
-                return "When being attacked, "+(p.name) + " sustains "+ teamToDamage[p.name][t]*100 + "% damage from " + t + " types"
+                return "When being attacked, "+(p.name) + " sustains "+ teamToWeakness[p.name][t]*100 + "% damage from " + t + " types"
                 });
             })
             .on("mouseout", function(d){ tooltip.style("display", "none");});
