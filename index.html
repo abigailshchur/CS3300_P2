@@ -262,6 +262,8 @@ var typeToMoves = {};
 var data = [];
 var isOff = true;
 var weakTypes = [];
+var avgHP = []; var avgAttack = []; var avgDefense = []; var avgSpAttack = []; 
+var avgSpDefense = []; var avgSpeed = []; var avgTotal = [];
 
 var parseStatsRow = function(row) {
     var l = false;
@@ -607,6 +609,19 @@ function displayPokemon(){
         team = fullTeam;
     }
 
+    avgHP = []; avgAttack = []; avgDefense = []; avgSpAttack = []; 
+    avgSpDefense = []; avgSpeed = []; avgTotal = [];
+    for (i = 0; i < team.length; i++){
+        avgHP.push(team[i].hp); avgAttack.push(team[i].attack); avgDefense.push(team[i].defense);
+        avgSpAttack.push(team[i].sp_attack); avgSpDefense.push(team[i].sp_defense); avgSpeed.push(team[i].speed);
+        avgTotal.push(team[i].total);
+    }
+    for (i = 0; i < nextTeam.length; i++){
+        avgHP.push(nextTeam[i].hp); avgAttack.push(nextTeam[i].attack); avgDefense.push(nextTeam[i].defense);
+        avgSpAttack.push(nextTeam[i].sp_attack); avgSpDefense.push(nextTeam[i].sp_defense); avgSpeed.push(nextTeam[i].speed);
+        avgTotal.push(nextTeam[i].total);
+    }
+
     if (teamType == "mixed"){
         svg.append("rect")
             .attr("x", 25)
@@ -822,7 +837,88 @@ function appendStats(i, svg){
             .attr("y", 95+j*20)
             .attr("opacity",0)
             .attr("text-anchor","start")
-            .attr("fill", "black");
+            .attr("fill", get_stat_color(j,team[i]));
+    }
+
+    function get_stat_color(j,pokemon){
+        if (j == 0){
+            if (pokemon.hp < d3.mean(avgHP)-d3.deviation(avgHP)){
+                return "red";
+            }
+            else if (pokemon.hp > d3.mean(avgHP)+d3.deviation(avgHP)){
+                return "#228B22";
+            }
+            else{
+                return "black";
+            }
+        }
+        else if (j == 1){
+            if (pokemon.attack < d3.mean(avgAttack)-d3.deviation(avgAttack)){
+                return "red";
+            }
+            else if (pokemon.attack > d3.mean(avgAttack)+d3.deviation(avgAttack)){
+                return "#228B22";
+            }
+            else{
+                return "black";
+            }
+        }
+        else if (j == 2){
+            if (pokemon.defense < d3.mean(avgDefense)-d3.deviation(avgDefense)){
+                return "red";
+            }
+            else if (pokemon.defense > d3.mean(avgDefense)+d3.deviation(avgDefense)){
+                return "#228B22";
+            }
+            else{
+                return "black";
+            }
+        }
+        else if (j == 3){
+            if (pokemon.sp_attack < d3.mean(avgSpAttack)-d3.deviation(avgSpAttack)){
+                return "red";
+            }
+            else if (pokemon.sp_attack > d3.mean(avgSpAttack)+d3.deviation(avgSpAttack)){
+                return "#228B22";
+            }
+            else{
+                return "black";
+            }
+        }
+        else if (j == 4){
+            if (pokemon.sp_defense < d3.mean(avgSpDefense)-d3.deviation(avgSpDefense)){
+                return "red";
+            }
+            else if (pokemon.sp_defense > d3.mean(avgSpDefense)+d3.deviation(avgSpDefense)){
+                return "#228B22";
+            }
+            else{
+                return "black";
+            }
+        }
+        else if (j == 5){
+            if (pokemon.speed < d3.mean(avgSpeed)-d3.deviation(avgSpeed)){
+                return "red";
+            }
+            else if (pokemon.speed > d3.mean(avgSpeed)+d3.deviation(avgSpeed)){
+                return "#228B22";
+            }
+            else{
+                return "black";
+            }
+        }
+        else{
+            if (pokemon.total < d3.mean(avgTotal)-d3.deviation(avgTotal)){
+                return "red";
+            }
+            else if (pokemon.total > d3.mean(avgTotal)+d3.deviation(avgTotal)){
+                return "#228B22";
+            }
+            else{
+                return "black";
+            }
+        }
+
     }
 }
 
