@@ -516,6 +516,7 @@ d3.queue()
         typeToEff[typeLst[i]] = type_chart[i];
         typeToMoves[typeLst[i]] = [];
     }
+    typeToEff["Fairy"]["Fairy"]=1; // not sure why bug here
     for (i = 0; i < moves_table.length; i++){
         typeToMoves[moves_table[i]["type"]].push(moves_table[i]);
     }
