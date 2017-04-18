@@ -94,6 +94,40 @@ input[type=button], input[type=submit], input[type=reset] {
     opacity: 0.5;
 }
 
+.ticks {
+  font: 10px sans-serif;
+}
+
+.track,
+.track-inset,
+.track-overlay {
+  stroke-linecap: round;
+}
+
+.track {
+  stroke: #000;
+  stroke-opacity: 0.3;
+  stroke-width: 10px;
+}
+
+.track-inset {
+  stroke: #ddd;
+  stroke-width: 8px;
+}
+
+.track-overlay {
+  pointer-events: stroke;
+  stroke-width: 50px;
+  stroke: transparent;
+}
+
+.handle {
+  fill: #fff;
+  stroke: #000;
+  stroke-opacity: 0.5;
+  stroke-width: 1.25px;
+}
+
 </style>
 </head>
 <body>
@@ -177,8 +211,9 @@ Every Pokemon has a corresponding type. Some Pokemon have 2 types. The first plo
            id= "defensebutton"
            onclick="buttonClickDef()" />
 </div>
-<svg id="type_counts" style="border: solid #ccc 1px;" width="1400" height="850"></svg>
+<svg id="type_counts" width="1400" height="850"></svg>
 </div>
+</br></br></br></br></br>
 
 
 
@@ -225,6 +260,8 @@ var typeToEff = {}; // give it a type, returns dict by type and value = effectiv
 var useAllRegionsType = true;
 var typeToMoves = {};
 var data = [];
+var isOff = true;
+var weakTypes = [];
 
 var parseStatsRow = function(row) {
     var l = false;
@@ -1051,7 +1088,7 @@ function plotTypePercentages(){
 
 
     /* CODE FOR HEATMAP */
-
+    isOff = true;
     document.getElementById("offensebutton").style.background = "gray";
     document.getElementById("defensebutton").style.background = "#3D9970";
 
@@ -1142,7 +1179,7 @@ function plotTypePercentages(){
     svg.append("rect")
     .attr("width", 530)
     .attr("height", 10)
-    .attr("x",700)
+    .attr("x",550)
     .attr("y" ,805)
     .style("fill", "url(#gradient)");
 
@@ -1151,7 +1188,7 @@ function plotTypePercentages(){
         .text(d)
         .attr("x", i*100)
         .attr("y", 0)
-        .attr("transform", "translate(700, 830)");
+        .attr("transform", "translate(550, 830)");
     });
 
     ["No Effect", "Not Very Effective", "Not Effective", "Normal", "Super Effective", "Super Super Effective!"].forEach(function(d,i){
@@ -1162,13 +1199,14 @@ function plotTypePercentages(){
         .attr("x", i*100+10)
         .attr("y", 0)
         .attr("text-anchor", "middle")
-        .attr("transform", "translate(700, 845)");
+        .attr("transform", "translate(550, 845)");
     });
 
     plotMoves();
 }
 
 function buttonClickDef(){
+    isOff = false;
     document.getElementById("defensebutton").style.background = "gray";
     document.getElementById("offensebutton").style.background = "#3D9970";
     var svg = d3.select("#type_counts");
@@ -1239,12 +1277,13 @@ function buttonClickDef(){
         .attr("x", i*100+10)
         .attr("y", 10)
         .attr("text-anchor", "middle")
-        .attr("transform", "translate(700, 830)");
+        .attr("transform", "translate(550, 830)");
     });
-
+    movesInfo(0);
 }
 
 function buttonClickOff(){
+    isOff = true;
     document.getElementById("offensebutton").style.background = "gray";
     document.getElementById("defensebutton").style.background = "#3D9970";
     var tooltip = d3.select("body").append("div").attr("class", "toolTip");
@@ -1290,27 +1329,18 @@ function buttonClickOff(){
         .attr("x", i*100+10)
         .attr("y", 10)
         .attr("text-anchor", "middle")
-        .attr("transform", "translate(700, 830)");
+        .attr("transform", "translate(550, 830)");
     });
+    movesInfo(0);
 }
 
 
 
 function plotMoves(){
-    // currently called in most of the right places (need to add call for when we change from offense to defense)
     var svg = d3.select("#type_counts");
-    //svg.selectAll("*").remove(); // removes plot from before (keep this)
-
-    // To find code where the type button code is (just images not clickable) search for "type of Pokemon"
-    // All relevant move data is in typeToMoves
     var button_width = 75;
     var button_height = 25;
     var xOffset = 565;
-    //var yscale_plotmoves = d3.scaleLinear().domain([0, 17]).range([100, 900]);
-
-    //for (i = 0; i < typeLst.length; i++){
-    //    data[i] = {"name": typeLst[i], "value": 0, "color": typeToColor[typeLst[i]]};
-    //}
     data = data.reverse();
     data.forEach(function(d, i){
         svg.append("rect")
@@ -1337,7 +1367,6 @@ function plotMoves(){
 }
 
 function movesInfo(index){
-    console.log(data[index]);
     var color_used = data[index].color;
     var svg = d3.select("#type_counts");
     var old_chart = d3.selectAll("#moves_chart");
@@ -1349,20 +1378,11 @@ function movesInfo(index){
     .attr("id", "moves_chart")
     .attr("x", 10)
     .attr("y", 50)
-    //.attr("fill", "#F9F9DE")
-    .attr("fill",  LightenDarkenColor(data[index].color, 200))
+    .attr("fill",  "white")
     .attr("height", 750)
     .attr("width",500)
     .attr("stroke", data[index].color)
     .attr("stroke-width",5);
-
-    svg.append("text")
-    .text("The strongest type against type " +data[index].name+ " is:")
-    .attr("id", "moves_chart")
-    //.attr("pointer-events", "none")
-    .attr("x", 15)
-    .attr("y", 50)
-    .style("fill", "black");
 
     svg.append("svg:defs").append("svg:marker")
     .attr("id", "arrow")
@@ -1373,7 +1393,8 @@ function movesInfo(index){
     .attr("orient", "auto")
     .append("path")
     .attr("d", "M 0 0 12 6 0 12 3 6");
-    //line              
+    
+    // http://stackoverflow.com/questions/36579339/how-to-draw-line-with-arrow-using-d3-js   
     svg.append("line")
     .attr("id", "moves_chart")
     .attr("x1", 560)
@@ -1384,31 +1405,354 @@ function movesInfo(index){
     .attr("stroke", data[index].color)
     .attr("marker-end", "url(#arrow)");
 
-    var marker = svg.select('#arrow');
+    var marker = svg.select('#arrow'); // idk how to make color work without doing this
     marker.style("fill", data[index].color);
 
-}
-
-
-// https://css-tricks.com/snippets/javascript/lighten-darken-color/
-function LightenDarkenColor(col, amt) {
-    var usePound = false;
-    if (col[0] == "#") {
-        col = col.slice(1);
-        usePound = true;
+    var chosenType = data[index].name;
+    var text = "In terms of Defense:"
+    if (isOff){
+        text = "In terms of Offense:"
     }
-    var num = parseInt(col,16);
-    var r = (num >> 16) + amt;
-    if (r > 255) r = 255;
-    else if  (r < 0) r = 0;
-    var b = ((num >> 8) & 0x00FF) + amt;
-    if (b > 255) b = 255;
-    else if  (b < 0) b = 0;
-    var g = (num & 0x0000FF) + amt;
-    if (g > 255) g = 255;
-    else if (g < 0) g = 0;
-    return (usePound?"#":"") + (g | (b << 8) | (r << 16)).toString(16);
+    svg.append("text")
+    .text(text)
+    .attr("id", "moves_chart")
+    .attr("x", 10+500/2)
+    .attr("y", 70)
+    .attr("text-anchor","middle")
+    .style("fill", "black");
+
+    svg.append("text")
+    .text("Your team is on average")
+    .attr("id", "moves_chart")
+    .attr("x", 10+500/2)
+    .attr("y", 100)
+    .attr("text-anchor","middle")
+    .style("fill", "black");
+    var sum_eff = 0;
+    var text = "";
+    if (isOff){
+        for (i = 0; i < 6; i++){
+            sum_eff = sum_eff + teamToDamage[team[i].name][chosenType];
+        }
+        sum_eff = sum_eff/6;
+        text = "x effective against "+chosenType;
+    }
+    else{
+        for (i = 0; i < 6; i++){
+            sum_eff = sum_eff + teamToWeakness[team[i].name][chosenType];
+        }
+        sum_eff = sum_eff/6;
+        text = "x weak to "+chosenType;
+    }
+
+    svg.append("text")
+    .text((Math.round(sum_eff * 100) / 100).toString()+text)
+    .attr("id", "moves_chart")
+    .attr("x", 10+500/2)
+    .attr("y", 130)
+    .attr("text-anchor","middle")
+    .style("fill", "black");
+
+    text = "";
+    if (sum_eff == 1){
+        text = "In other words, average against "+chosenType+"."
+    }
+    else if (isOff){
+        if (sum_eff == 0){
+            text = "This is just about as bad as you can get.";
+        }
+        else if (sum_eff <= 0.5){
+            text = "In other words, very weak against "+chosenType+".";
+        }
+        else if (sum_eff < 1){
+            text = "In other words, somewhat weak against "+chosenType+".";
+        }
+        else if (sum_eff < 2){
+            text = "In other words, somewhat strong against "+chosenType+".";
+        }
+        else{
+            text = "In other words, very strong against "+chosenType+".";
+        }
+
+    }
+    else{
+        if (sum_eff == 0){
+            text = "In other words, invincible against "+chosenType+".";
+        }
+        else if (sum_eff <= 0.5){
+            text = "In other words, very strong against "+chosenType+".";
+        }
+        else if (sum_eff < 1){
+            text = "In other words, somewhat strong against "+chosenType+".";
+        }
+        else if (sum_eff < 2){
+            text = "In other words, somewhat weak against "+chosenType+".";
+        }
+        else{
+            text = "In other words, very weak against "+chosenType+".";
+        }
+
+    }
+
+    svg.append("text")
+    .text(text)
+    .attr("id", "moves_chart")
+    .attr("x", 10+500/2)
+    .attr("y", 160)
+    .attr("text-anchor","middle")
+    .style("fill", "black");
+
+    svg.append("rect")
+    .attr("id", "moves_chart")
+    .attr("x", 10)
+    .attr("y", 190)
+    .attr("width", 500)
+    .attr("height",5)
+    .attr("fill", data[index].color);
+
+    svg.append("text")
+    .text(chosenType+" is Weak against the following types:")
+    .attr("id", "moves_chart")
+    .attr("x", 10+500/2)
+    .attr("y", 220)
+    .attr("text-anchor","middle")
+    .attr("fill", "black");
+
+    weakTypes = [];
+    for (i = 0; i < typeLst.length; i++){
+        if (typeToEff[typeLst[i]][chosenType]==2){
+            weakTypes.push(typeLst[i])
+        }
+    }
+    var button_height = 240;
+    var offset = 5;
+    if (weakTypes.length == 1){
+        svg.append("rect")
+            .attr("class", "moves_chart")
+            .attr("x", 10+500/2-75/2)
+            .attr("y", button_height)
+            .attr("rx", 8)
+            .attr("ry", 8)
+            .attr("height", 25)
+            .attr("width", 75)
+            .attr("fill", typeToColor[weakTypes[0]]);
+        svg.append("text")
+            .text(weakTypes[0])
+            .attr("class","moves_chart")
+            .attr("text-anchor","middle")
+            .attr("x", 10+500/2)
+            .attr("y", button_height+25/2+5)
+            .style("fill", "white")
+            .style("cursor", "default");
+    }
+    else{
+        var x_start;
+        if (weakTypes.length == 2){
+            x_start = 10+500/2-offset/2-75;
+        }
+        else if (weakTypes.length == 3){
+            x_start = 10+500/2-75/2-offset-75;
+        }
+        else if (weakTypes.length == 4){
+            x_start = 10+500/2-offset/2-offset-2*75;
+        }
+        else{
+            x_start = 10+500/2-2*offset-2.5*75;
+        }
+        for (i = 0; i < weakTypes.length; i++){
+            var x = 
+            svg.append("rect")
+                .attr("class", "moves_chart")
+                .attr("x", x_start+i*(offset+75))
+                .attr("y", button_height)
+                .attr("rx", 8)
+                .attr("ry", 8)
+                .attr("height", 25)
+                .attr("width", 75)
+                .attr("fill", typeToColor[weakTypes[i]]);
+            svg.append("text")
+                .text(weakTypes[i])
+                .attr("class","moves_chart")
+                .attr("text-anchor","middle")
+                .attr("x", x_start+i*(offset+75)+75/2)
+                .attr("y", button_height+25/2+5)
+                .style("fill", "white")
+                .style("cursor", "default");
+        }
+    }
+
+    svg.append("rect")
+    .attr("id", "moves_chart")
+    .attr("x", 10)
+    .attr("y", 280)
+    .attr("width", 500)
+    .attr("height",5)
+    .attr("fill", data[index].color);
+
+    svg.append("text")
+    .text("If you want to be more effective against "+chosenType+",")
+    .attr("id", "moves_chart")
+    .attr("text-anchor","middle")
+    .attr("x", 10+500/2)
+    .attr("y", 310)
+    .attr("fill", "black");
+    svg.append("text")
+    .text("then you should consider utilizing some of the following moves:")
+    .attr("id", "moves_chart")
+    .attr("text-anchor","middle")
+    .attr("x", 10+500/2)
+    .attr("y", 330)
+    .attr("fill", "black");
+
+
+    // https://bl.ocks.org/mbostock/6452972
+    var scale_range = d3.scaleLinear().domain([0.01, 0.99]).range([80,380]).clamp(true);
+
+    var slider = svg.append("g")
+    .attr("class", "slider")
+    .attr("transform", "translate(" + 10 + "," + 350 + ")");
+
+    slider.append("line")
+    .attr("class", "track")
+    .attr("x1", scale_range.range()[0])
+    .attr("x2", scale_range.range()[1])
+    .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+    .attr("class", "track-inset")
+    .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+    .attr("class", "track-overlay")
+    .call(d3.drag()
+        .on("start.interrupt", function() { slider.interrupt(); })
+        .on("start drag", function() { set_proportions(scale_range.invert(d3.event.x)); }));
+
+    var handle = slider.insert("circle", ".track-overlay")
+    .attr("class", "handle")
+    .attr("r", 9);
+
+    set_proportions(0.5);
+
+    function set_proportions(h) {
+        handle.attr("cx", scale_range(h));
+        addMovesDescription(h);
+    }
+
+    svg.append("text")
+    .text("Prioritize Accuracy")
+    .attr("id", "moves_chart")
+    .attr("text-anchor","middle")
+    .attr("x", 80+20)
+    .attr("y", 380)
+    .attr("fill", "black");
+
+    svg.append("text")
+    .text("Prioritize Power ")
+    .attr("id", "moves_chart")
+    .attr("text-anchor","middle")
+    .attr("x", 380)
+    .attr("y", 380)
+    .attr("fill", "black");
 }
+
+function addMovesDescription(val){
+    var svg = d3.select("#type_counts");
+    var old_stats = d3.selectAll(".move_stats");
+    old_stats.remove();
+    var prop_accuracy = 1-val; // these need to sum to 1
+    var prop_power = val;
+    var possible_moves = [];
+    for (i = 0; i < weakTypes.length; i++){
+        possible_moves = possible_moves.concat(typeToMoves[weakTypes[i]]);
+    }
+    for (i = 0; i < possible_moves.length; i++){
+        move = possible_moves[i];
+        possible_moves[i]["ranked_value"] = prop_accuracy*move.accuracy+prop_power*move.power/150;
+    }
+    possible_moves.sort(function(a,b){return(a.ranked_value<b.ranked_value)?1:((b.ranked_value<a.ranked_value)?-1:0);}); 
+    var width_move = 120;
+    var height_move = 170;
+    var padding = 20;
+    for (i=0; i < 6; i++){
+        var x;
+        var y;
+        if (i==0 || i==3){
+            x = 10+500/2-padding-3*width_move/2;
+        }
+        else if (i==1 || i==4){
+            x = 10+500/2-padding-3*width_move/2+padding+width_move;
+        }
+        else{
+            x = 10+500/2-padding-3*width_move/2+2*padding+2*width_move;
+        }
+        if (i < 3){
+            y = 425;
+        }
+        else{
+            y = 425 + padding + height_move;
+        }
+        svg.append("rect")
+        .attr("id", "moves_chart")
+        .attr("class", "move_stats")
+        .attr("x", x)
+        .attr("y", y)
+        .attr("width", width_move)
+        .attr("height",height_move)
+        .attr("fill", "white")
+        .attr("stroke", "black");
+
+        svg.append("text")
+        .text(possible_moves[i].name)
+        .attr("id", "moves_chart")
+        .attr("class", "move_stats")
+        .attr("text-anchor","middle")
+        .attr("x", x+width_move/2)
+        .attr("y", y+20)
+        .attr("fill", "black");
+
+        svg.append("rect")
+            .attr("id", "moves_chart")
+            .attr("class", "move_stats")
+            .attr("x", x+width_move/2-75/2)
+            .attr("y", y+30)
+            .attr("rx", 8)
+            .attr("ry", 8)
+            .attr("height", 25)
+            .attr("width", 75)
+            .attr("fill", typeToColor[possible_moves[i].type]);
+        svg.append("text")
+            .text(possible_moves[i].type)
+            .attr("id", "moves_chart")
+            .attr("class", "move_stats")
+            .attr("text-anchor","middle")
+            .attr("x", x+width_move/2)
+            .attr("y", y+30+25/2+5)
+            .style("fill", "white");
+        svg.append("text")
+            .text("Power: "+possible_moves[i].power)
+            .attr("id", "moves_chart")
+            .attr("class", "move_stats")
+            .attr("text-anchor","middle")
+            .attr("x", x+60)
+            .attr("y", y+80)
+            .style("fill", "black");
+        svg.append("text")
+            .text("Accuracy: "+possible_moves[i].accuracy)
+            .attr("id", "moves_chart")
+            .attr("class", "move_stats")
+            .attr("text-anchor","middle")
+            .attr("x", x+60)
+            .attr("y", y+110)
+            .style("fill", "black");
+        svg.append("text")
+            .text("PP: "+possible_moves[i].pp)
+            .attr("id", "moves_chart")
+            .attr("class", "move_stats")
+            .attr("text-anchor","middle")
+            .attr("x", x+60)
+            .attr("y", y+140)
+            .style("fill", "black");
+    }
+
+}
+
 </script>
 
 
