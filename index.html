@@ -229,9 +229,9 @@ var typeToColor = {"Grass": "#006622", "Poison": "#7C0774", "Fire":"#D16B31", "F
 var typeLst = ["Normal", "Fire", "Water", "Electric", "Grass", "Ice", "Fighting", "Poison", "Ground",
 "Flying", "Psychic", "Bug", "Rock", "Ghost", "Dragon", "Dark", "Steel", "Fairy"];
 
-var colorDictDef = {"0":"#FFFFFF","0.25":"#F2CCCE", "0.5":"#E5999E","1":"#D8666D","2":"#CB333D","4":"#BF000D"} //darker = more vulnerable
+var colorDictDef = {"0":"#FFFFFF","0.25":"#F2CCCE", "0.5":"#E5999E","1":"#D8666D","2":"#CB333D","4":"#A80017"} //darker = more vulnerable
 
-var colorDict = {"4":"#1C8901","2":"#49A033", "1":"#76B866","0.5":"#A4CF99","0.25":"#D1E7CC","0":"#FFFFFF"}; //for heatmap; darker= more damage
+var colorDict = {"4":"#0D7000","2":"#1DA41C", "1":"#68C267","0.5":"#A4CF99","0.25":"#D1E7CC","0":"#FFFFFF"}; //for heatmap; darker= more damage
 
 var teamToDamage = {}; //pokemon and the type they're good against - higher number - more damage
 var teamToWeakness = {}; //pokemon and the type they're weak against - higher number = more vulnerable
@@ -1271,7 +1271,7 @@ function plotTypePercentages(){
 
     gradient.append("stop")
     .attr("offset", "100%")
-    .attr("stop-color", "#1C8901")
+    .attr("stop-color", "#0D7000")
     .attr("stop-opacity", 1);
 
     svg.append("rect")
@@ -1363,7 +1363,7 @@ function buttonClickDef(){
 
     gradient.append("stop")
     .attr("offset", "100%")
-    .attr("stop-color", "#BF000D")
+    .attr("stop-color", "#A80017")
     .attr("stop-opacity", 1);
 
     svg.selectAll(".legendlabels").remove();
@@ -1415,7 +1415,7 @@ function buttonClickOff(){
 
     gradient.append("stop")
     .attr("offset", "100%")
-    .attr("stop-color", "#1C8901")
+    .attr("stop-color", "#0D7000")
     .attr("stop-opacity", 1);
     
     svg.selectAll(".legendlabels").remove();
