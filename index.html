@@ -1157,7 +1157,6 @@ function plotTypePercentages(){
                 .domain([0,d3.max(data, function(d){return d.value;})]);
     var yScale = d3.scaleBand().range([height_bar, margin.top_bar]).padding(0.2)
                 .domain(data.map(function(d) { return d.name; }));
-    var tooltip = d3.select("body").append("div").attr("class", "toolTip");
 
     svg.append("text")
         .text("Counts of Each Type of Pokemon")
@@ -1174,15 +1173,15 @@ function plotTypePercentages(){
         .attr("x", margin.left_bar)
         //.attr("fill", function(d) {return d.color})
         .attr("fill", "#708090")
-        .attr("height", yScale.bandwidth())
-        .on("mousemove", function(d){
-            tooltip
-              .style("left", d3.event.pageX +10  + "px")
-              .style("top", d3.event.pageY -30 + "px")
-              .style("display", "inline-block")
-              .html((d.name) + ": "+ (d.value));
-        })
-            .on("mouseout", function(d){ tooltip.style("display", "none");});;
+        .attr("height", yScale.bandwidth());
+
+    svg.selectAll(".barLabel")
+        .data(data)
+        .enter().append("text")
+        .text(function(d){return d.value;})
+        .attr("x", function(d){return margin.left_bar + xScale(d.value);})
+        .attr("y", function(d){return 25+yScale(d.name);})
+        .attr("fill", "black");
 
 
     /* CODE FOR HEATMAP */
