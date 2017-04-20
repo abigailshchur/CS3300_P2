@@ -1181,7 +1181,6 @@ function plotTypePercentages(){
         .attr("width", function(d) {return xScale(d.value); } )
         .attr("y", function(d) { return yScale(d.name); })
         .attr("x", margin.left_bar)
-        //.attr("fill", function(d) {return d.color})
         .attr("fill", "#708090")
         .attr("height", yScale.bandwidth());
 
