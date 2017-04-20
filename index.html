@@ -1,7 +1,7 @@
 <html>
 <head>
 <title>INFO 3300 - Project 2</title>
-<link href="https://fonts.googleapis.com/css?family=Alegreya|Alegreya+Sans" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Asap" rel="stylesheet">
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/default.min.css">
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script>
@@ -9,7 +9,7 @@
 
 <style>
 
-body { font-family: 'Alegreya', Calibri, sans-serif; font-size: 14; background-color: #F9F9DE}
+body { font-family: 'Asap', Calibri, sans-serif; font-size: 16; background-color: #eafeea}
 h1 { 
     display: block;
     font-size: 2em;
@@ -133,7 +133,7 @@ input[type=button], input[type=submit], input[type=reset] {
 <body>
 
 <h1> 
-<img src="pics/logo.png" alt="" style="width:400px;height:150px;">
+<img src="pics/logo.png" alt="" style="width:400px;height:150px;"> &nbsp &nbsp
 <img src="pics/team_builder.png" alt="" style="width:600px;height:150px;">
 </h1> 
 </br>
@@ -1161,17 +1161,19 @@ function plotTypePercentages(){
     svg.append("text")
         .text("Counts of Each Type of Pokemon")
         .attr("x", margin.left_bar+(width_bar-margin.left_bar-margin.right_bar)/2)
-        .attr("y", 20)
+        .attr("y", 25)
         .attr("text-anchor","middle")
         .attr("fill", "black")
-        .attr("font-size", 20);
+        .attr("font-size", 23)
+        .style("font-weight", 900);
     svg.append("text")
         .text("Move Recommender")
-        .attr("x", 250)
-        .attr("y", 20)
+        .attr("x", 260)
+        .attr("y", 25)
         .attr("text-anchor", "middle")
         .attr("fill", "black")
-        .attr("font-size", 20);
+        .attr("font-size", 23)
+        .style("font-weight", 900);
     svg.selectAll(".bar")
         .data(data)
         .enter().append("rect")
@@ -1551,17 +1553,7 @@ function movesInfo(index){
     }
 
     svg.append("text")
-    .text((Math.round(sum_eff * 100) / 100).toString())
-    .attr("id", "moves_chart")
-    .attr("x", 170)
-    .attr("y", 135)
-    .attr("text-anchor","middle")
-    .attr("font-size", 17)
-    .attr("font-weight", 700)
-    .style("fill", "darkred");
-
-    svg.append("text")
-    .text(text)
+    .text((Math.round(sum_eff * 100) / 100).toString()+text)
     .attr("id", "moves_chart")
     .attr("x", 10+500/2)
     .attr("y", 135)
