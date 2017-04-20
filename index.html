@@ -9,7 +9,7 @@
 
 <style>
 
-body { font-family: 'Century Gothic', Calibri, sans-serif; font-size: 14; background-color: #F9F9DE}
+body { font-family: 'Alegreya', Calibri, sans-serif; font-size: 14; background-color: #F9F9DE}
 h1 { 
     display: block;
     font-size: 2em;
@@ -138,13 +138,13 @@ input[type=button], input[type=submit], input[type=reset] {
 </h1> 
 </br>
 <h2>
-With over 700 Pokemon, it has become increasingly difficult to make an in-game or competitive team. This application is designed to make that process a little easier.  You can choose a subset of regions corresponding to which games you own. You can also pick the type of team you want. Stat total corresponds to the highest sum of all of the stats. Attack corresponds to the max of Special Attack and Attack. Defense corresponds to the average of Defense, Special Defense, and HP. Mixed corresponds to the top 2 of each of the preceding categories. Lastly, random is just random as expected. Beyond this, you can even limit your search by choosing whether you want to include Mega evolutions and Legendary Pokemon. Hover over a Pokemon to see their stats. Click on “Switch” if you want to go to the next optimal Pokemon. 
+With over 700 Pokemon, it has become increasingly difficult to make an in-game or competitive team. This application is designed to make that process a little easier.  You can choose a subset of regions corresponding to which games you own. You can also pick the type of team you want. Stat total corresponds to the highest sum of all of the stats. Attack corresponds to the max of Special Attack and Attack. Defense corresponds to the average of Defense, Special Defense, and HP. Mixed corresponds to the top 2 of each of the preceding categories. Lastly, random is just random as expected. Beyond this, you can even limit your search by choosing whether you want to include Mega evolutions and Legendary Pokemon. Hover over a Pokemon to see their stats. (A red stat is a standard deviation below the mean for that stat, and a green stat is a standard deviation above. Black is around average.) Click on "Switch" if you want to go to the next optimal Pokemon. 
 </br> </br>
 Note for Competitive Play: The teams returned are not necessarily allowed according to competitive rules. It is recommended that you click away Pokemon until the team is allowed.
 </h2>
 <div id="user_inputs">
 <form id="mainForm" onsubmit="submitForm(); return false;">
-  Region:
+  <b> Region: </b>
   <input type="checkbox" name="Gen" value="1" checked> Kanto (Gen 1) &nbsp &nbsp
   <input type="checkbox" name="Gen" value="2"> Johto (Gen 2) &nbsp &nbsp
   <input type="checkbox" name="Gen" value="3"> Hoenn (Gen 3) &nbsp &nbsp
@@ -153,7 +153,7 @@ Note for Competitive Play: The teams returned are not necessarily allowed accord
   <input type="checkbox" name="Gen" value="6"> Kalos (Gen 6) &nbsp &nbsp
   </br>
   </br>
-  Team Type:
+  <b> Team Type: </b>
   <input type="radio" name="Team" value="total" checked> Stat Total &nbsp &nbsp
   <input type="radio" name="Team" value="attack"> Attack &nbsp &nbsp
   <input type="radio" name="Team" value="defense"> Defensive &nbsp &nbsp
@@ -161,12 +161,12 @@ Note for Competitive Play: The teams returned are not necessarily allowed accord
   <input type="radio" name="Team" value="random"> Random &nbsp &nbsp
   </br>
   </br>
-  Include Legendary Pokemon:
+  <b> Include Legendary Pokemon: </b>
   <input type="radio" name="Legend" value="yes" checked> Yes &nbsp &nbsp
   <input type="radio" name="Legend" value="no"> No &nbsp &nbsp
   </br>
   </br>
-  Include Mega or Primal Evolutions:
+  <b> Include Mega or Primal Evolutions: </b>
   <input type="radio" name="Mega" value="yes" checked> Yes &nbsp &nbsp
   <input type="radio" name="Mega" value="no"> No &nbsp &nbsp
   </br>
@@ -190,7 +190,7 @@ Every Pokemon has a corresponding type. Some Pokemon have 2 types. The first plo
 
 <div id="user_inputs_2">
 <form id="form2">
-  Regions for Type Comparison: &nbsp &nbsp
+  <b> Regions for Type Comparison: &nbsp &nbsp </b>
   <input onClick="submitForm2();" type="radio" name="R" value="all" checked> All Regions &nbsp &nbsp
   <input onClick="submitForm2();" type="radio" name="R" value="subset"> Subset of Regions Checked Above &nbsp &nbsp
   </br>
@@ -1163,7 +1163,15 @@ function plotTypePercentages(){
         .attr("x", margin.left_bar+(width_bar-margin.left_bar-margin.right_bar)/2)
         .attr("y", 20)
         .attr("text-anchor","middle")
-        .attr("fill", "black");
+        .attr("fill", "black")
+        .attr("font-size", 20);
+    svg.append("text")
+        .text("Move Recommender")
+        .attr("x", 250)
+        .attr("y", 20)
+        .attr("text-anchor", "middle")
+        .attr("fill", "black")
+        .attr("font-size", 20);
     svg.selectAll(".bar")
         .data(data)
         .enter().append("rect")
@@ -1179,15 +1187,15 @@ function plotTypePercentages(){
         .data(data)
         .enter().append("text")
         .text(function(d){return d.value;})
-        .attr("x", function(d){return margin.left_bar + xScale(d.value);})
-        .attr("y", function(d){return 25+yScale(d.name);})
+        .attr("x", function(d){return margin.left_bar + 10+ xScale(d.value);})
+        .attr("y", function(d){return 21+yScale(d.name);})
         .attr("fill", "black");
 
 
     /* CODE FOR HEATMAP */
     isOff = true;
-    document.getElementById("offensebutton").style.background = "gray";
-    document.getElementById("defensebutton").style.background = "#3D9970";
+    document.getElementById("offensebutton").style.background = "#98FB98";
+    document.getElementById("defensebutton").style.background = "#8b0000";
 
     var chart = svg.append("g").attr("transform", "rotate(90) translate(-60, -700)");
 
@@ -1304,8 +1312,8 @@ function plotTypePercentages(){
 
 function buttonClickDef(){
     isOff = false;
-    document.getElementById("defensebutton").style.background = "gray";
-    document.getElementById("offensebutton").style.background = "#3D9970";
+    document.getElementById("defensebutton").style.background = "#FFCCCB";
+    document.getElementById("offensebutton").style.background = "#006400";
     var svg = d3.select("#type_counts");
     var tooltip = d3.select("body").append("div").attr("class", "toolTip");
     var rects = svg.selectAll(".map_rect");
@@ -1381,8 +1389,8 @@ function buttonClickDef(){
 
 function buttonClickOff(){
     isOff = true;
-    document.getElementById("offensebutton").style.background = "gray";
-    document.getElementById("defensebutton").style.background = "#3D9970";
+    document.getElementById("offensebutton").style.background = "#98FB98";
+    document.getElementById("defensebutton").style.background = "#8b0000";
     var tooltip = d3.select("body").append("div").attr("class", "toolTip");
     var svg = d3.select("#type_counts");
     var rects = svg.selectAll(".map_rect");
@@ -1514,7 +1522,7 @@ function movesInfo(index){
     .text(text)
     .attr("id", "moves_chart")
     .attr("x", 10+500/2)
-    .attr("y", 70)
+    .attr("y", 85)
     .attr("text-anchor","middle")
     .style("fill", "black");
 
@@ -1522,7 +1530,7 @@ function movesInfo(index){
     .text("Your team is on average")
     .attr("id", "moves_chart")
     .attr("x", 10+500/2)
-    .attr("y", 100)
+    .attr("y", 110)
     .attr("text-anchor","middle")
     .style("fill", "black");
     var sum_eff = 0;
@@ -1543,50 +1551,60 @@ function movesInfo(index){
     }
 
     svg.append("text")
-    .text((Math.round(sum_eff * 100) / 100).toString()+text)
+    .text((Math.round(sum_eff * 100) / 100).toString())
+    .attr("id", "moves_chart")
+    .attr("x", 170)
+    .attr("y", 135)
+    .attr("text-anchor","middle")
+    .attr("font-size", 17)
+    .attr("font-weight", 700)
+    .style("fill", "darkred");
+
+    svg.append("text")
+    .text(text)
     .attr("id", "moves_chart")
     .attr("x", 10+500/2)
-    .attr("y", 130)
+    .attr("y", 135)
     .attr("text-anchor","middle")
     .style("fill", "black");
 
     text = "";
     if (sum_eff == 1){
-        text = "In other words, average against "+chosenType+"."
+        text = "In other words, AVERAGE against "+chosenType+"."
     }
     else if (isOff){
         if (sum_eff == 0){
             text = "This is just about as bad as you can get.";
         }
         else if (sum_eff <= 0.5){
-            text = "In other words, very weak against "+chosenType+".";
+            text = "In other words, VERY WEAK against "+chosenType+".";
         }
         else if (sum_eff < 1){
-            text = "In other words, moderately weak against "+chosenType+".";
+            text = "In other words, MODERATELY WEAK against "+chosenType+".";
         }
         else if (sum_eff < 2){
-            text = "In other words, moderately strong against "+chosenType+".";
+            text = "In other words, MODERATELY STRONG against "+chosenType+".";
         }
         else{
-            text = "In other words, very strong against "+chosenType+".";
+            text = "In other words, VERY STRONG against "+chosenType+".";
         }
 
     }
     else{
         if (sum_eff == 0){
-            text = "In other words, invincible against "+chosenType+".";
+            text = "In other words, INVICIBLE against "+chosenType+".";
         }
         else if (sum_eff <= 0.5){
-            text = "In other words, very strong against "+chosenType+".";
+            text = "In other words, VERY STRONG against "+chosenType+".";
         }
         else if (sum_eff < 1){
-            text = "In other words, moderately strong against "+chosenType+".";
+            text = "In other words, MODERATELY STRONG against "+chosenType+".";
         }
         else if (sum_eff < 2){
-            text = "In other words, moderately weak against "+chosenType+".";
+            text = "In other words, MODERATELY WEAK against "+chosenType+".";
         }
         else{
-            text = "In other words, very weak against "+chosenType+".";
+            text = "In other words, VERY WEAK against "+chosenType+".";
         }
 
     }
@@ -1608,7 +1626,7 @@ function movesInfo(index){
     .attr("fill", data[index].color);
 
     svg.append("text")
-    .text(chosenType+" is Weak against the following types:")
+    .text(chosenType+" is weak against the following types:")
     .attr("id", "moves_chart")
     .attr("x", 10+500/2)
     .attr("y", 220)
@@ -1707,7 +1725,7 @@ function movesInfo(index){
 
     var slider = svg.append("g")
     .attr("class", "slider")
-    .attr("transform", "translate(" + 10 + "," + 350 + ")");
+    .attr("transform", "translate(" + 30 + "," + 350 + ")");
 
     slider.append("line")
     .attr("class", "track")
@@ -1736,7 +1754,7 @@ function movesInfo(index){
     .text("Prioritize Accuracy")
     .attr("id", "moves_chart")
     .attr("text-anchor","middle")
-    .attr("x", 80+20)
+    .attr("x", 110)
     .attr("y", 380)
     .attr("fill", "black");
 
@@ -1744,7 +1762,7 @@ function movesInfo(index){
     .text("Prioritize Power ")
     .attr("id", "moves_chart")
     .attr("text-anchor","middle")
-    .attr("x", 380)
+    .attr("x", 400)
     .attr("y", 380)
     .attr("fill", "black");
 }
@@ -1797,6 +1815,7 @@ function addMovesDescription(val){
 
         svg.append("text")
         .text(possible_moves[i].name)
+        .attr("font-weight", 700)
         .attr("id", "moves_chart")
         .attr("class", "move_stats")
         .attr("text-anchor","middle")
