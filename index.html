@@ -680,8 +680,8 @@ function displayPokemon(){
             .attr("y", 20)
             .attr("height", 200)
             .attr("width", 200)
-            .attr("href", "pokemon_pics/" + team[i].idStr + ".png")
-            .attr("xlink:href", "pokemon_pics/" + team[i].idStr + ".png");
+            .attr("href", "https://abigailshchur.github.io/pokemon_pics/pokemon_pics/" + team[i].idStr + ".png")
+            .attr("xlink:href", "https://abigailshchur.github.io/pokemon_pics/pokemon_pics/" + team[i].idStr + ".png");
     }
 
     // appending stat text
@@ -991,8 +991,8 @@ function onSwitch(id){
         .attr("y", 20)
         .attr("height", 200)
         .attr("width", 200)
-        .attr("href", "pokemon_pics/" + team[id].idStr + ".png")
-        .attr("xlink:href", "pokemon_pics/" + team[id].idStr + ".png");
+        .attr("href", "https://abigailshchur.github.io/pokemon_pics/pokemon_pics/" + team[id].idStr + ".png")
+        .attr("xlink:href", "https://abigailshchur.github.io/pokemon_pics/pokemon_pics/" + team[id].idStr + ".png");
     appendStats(id, svg);
     plotTypePercentages();
 }
@@ -1258,8 +1258,8 @@ function plotTypePercentages(){
         .attr("y",0)
         .attr("width",42)
         .attr("height",42)
-        .attr("href", "pokemon_pics/" + p.idStr + ".png")
-        .attr("xlink:href", "pokemon_pics/" + p.idStr + ".png")
+        .attr("href", "https://abigailshchur.github.io/pokemon_pics/pokemon_pics/" + p.idStr + ".png")
+        .attr("xlink:href", "https://abigailshchur.github.io/pokemon_pics/pokemon_pics/" + p.idStr + ".png")
         .attr("transform", "translate(60,"+ (j*squareSides-xAdjust+40)+ ") rotate(-90)");;
     });
 
